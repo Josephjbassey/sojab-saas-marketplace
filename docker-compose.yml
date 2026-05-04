@@ -30,6 +30,7 @@ services:
       - DATABASE_URL=postgres://postgres:password@db:5432/saas_db
       - REDIS_URL=redis://redis:6379/1
       - CELERY_BROKER_URL=redis://redis:6379/2
+      - PYTHONUNBUFFERED=1
     depends_on:
       - db
       - redis
