@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<div class="bg-slate-50">
+    <div class="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto text-center">
+            <h2 class="text-3xl font-extrabold text-slate-900 sm:text-4xl">
+                Frequently Asked Questions
+            </h2>
+            <p class="mt-4 text-lg text-slate-500">
+                Everything you need to know about our templates and delivery process.
+            </p>
+        </div>
+        <div class="mt-12 max-w-3xl mx-auto">
+            <dl class="space-y-8">
+                {% for block in page.body %}
+                    {% if block.block_type == 'faq_item' %}
+                        <div>
+                            <dt class="text-lg leading-6 font-medium text-slate-900">
+                                {{ block.value.question }}
+                            </dt>
+                            <dd class="mt-2 text-base text-slate-500">
+                                {{ block.value.answer|richtext }}
+                            </dd>
+                        </div>
+                    {% else %}
+                        <div class="prose prose-slate max-w-none">
+                            {% include_block block %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

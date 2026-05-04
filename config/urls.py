@@ -12,8 +12,10 @@ urlpatterns = [
     path('admin/', include(wagtailadmin_urls)),
     path('documents/', include(wagtaildocs_urls)),
 
-    # App routes will go here once defined
-
+    path('templates/', include('apps.templates_catalog.urls', namespace='templates_catalog')),
+    path('support/', include('apps.support.urls', namespace='support')),
+    path('auth/', include('apps.accounts.urls', namespace='accounts')),
+    path('', include('apps.marketplace.urls', namespace='marketplace')),
     path('', include(wagtail_urls)),
 ]
 

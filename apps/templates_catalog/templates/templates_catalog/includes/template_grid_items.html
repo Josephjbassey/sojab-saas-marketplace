@@ -1,0 +1,36 @@
+{% for template in templates %}
+    <div class="flex flex-col rounded-lg shadow-lg overflow-hidden bg-white border border-slate-200 hover:shadow-xl transition-shadow">
+        <div class="flex-shrink-0">
+            {% if template.main_image %}
+                <img class="h-48 w-full object-cover" src="{{ template.main_image.url }}" alt="{{ template.name }}">
+            {% else %}
+                <div class="h-48 w-full bg-slate-200 flex items-center justify-center text-slate-400 text-sm">No Preview</div>
+            {% endif %}
+        </div>
+        <div class="flex-1 p-6 flex flex-col justify-between">
+            <div class="flex-1">
+                <p class="text-sm font-medium text-indigo-600">
+                    {{ template.category.name }}
+                </p>
+                <a href="{% url 'templates_catalog:template_detail' template.slug %}" class="block mt-2">
+                    <p class="text-xl font-semibold text-slate-900">{{ template.name }}</p>
+                    <p class="mt-3 text-base text-slate-500 line-clamp-3">
+                        {{ template.description }}
+                    </p>
+                </a>
+            </div>
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-lg font-bold text-slate-900">
+                    From ${{ template.packages.first.price|default:"99" }}
+                </div>
+                <a href="{% url 'templates_catalog:template_detail' template.slug %}" class="text-indigo-600 font-semibold hover:text-indigo-500">
+                    View Details &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+{% empty %}
+    <div class="col-span-full text-center py-12 text-slate-500">
+        No templates found matching your criteria.
+    </div>
+{% endfor %}

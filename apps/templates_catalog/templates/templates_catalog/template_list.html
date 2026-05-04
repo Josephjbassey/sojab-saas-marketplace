@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="bg-white">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h1 class="text-3xl font-extrabold text-slate-900 sm:text-4xl">
+                Marketplace Templates
+            </h1>
+            <p class="mt-3 max-w-2xl mx-auto text-xl text-slate-500 sm:mt-4">
+                Choose the perfect foundation for your next SaaS venture.
+            </p>
+        </div>
+
+        <!-- Filters -->
+        <div class="mt-10 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div class="flex space-x-2 overflow-x-auto pb-2">
+                <button class="px-4 py-2 rounded-full text-sm font-medium {% if not current_category %}bg-indigo-600 text-white{% else %}bg-slate-200 text-slate-700 hover:bg-slate-300{% endif %}"
+                        hx-get="{% url 'templates_catalog:template_list' %}"
+                        hx-target="#template-grid"
+                        hx-push-url="true">
+                    All
+                </button>
+                {% for category in categories %}
+                    <button class="px-4 py-2 rounded-full text-sm font-medium {% if current_category == category.slug %}bg-indigo-600 text-white{% else %}bg-slate-200 text-slate-700 hover:bg-slate-300{% endif %}"
+                            hx-get="{% url 'templates_catalog:template_list' %}?category={{ category.slug }}"
+                            hx-target="#template-grid"
+                            hx-push-url="true">
+                        {{ category.name }}
+                    </button>
+                {% endfor %}
+            </div>
+
+            <div class="relative w-full md:w-64">
+                <input type="text" name="q" placeholder="Search templates..." 
+                       class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                       hx-get="{% url 'templates_catalog:template_list' %}"
+                       hx-trigger="keyup changed delay:500ms"
+                       hx-target="#template-grid">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template Grid -->
+        <div id="template-grid" class="mt-12 grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {% include "templates_catalog/includes/template_grid_items.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

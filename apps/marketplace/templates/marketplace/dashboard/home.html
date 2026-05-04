@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-slate-50 min-h-screen">
+    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold text-slate-900">Welcome, {{ user.first_name|default:user.email }}</h1>
+        
+        <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <!-- Recent Purchases -->
+            <div class="lg:col-span-2 space-y-6">
+                <section class="bg-white shadow rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                        <h2 class="text-lg font-medium text-slate-900">Recent Purchases</h2>
+                        <a href="{% url 'marketplace:purchase_history' %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">View all</a>
+                    </div>
+                    <div class="divide-y divide-slate-200">
+                        {% for purchase in recent_purchases %}
+                            <div class="px-6 py-4 flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-900">{{ purchase.template.name }}</p>
+                                    <p class="text-xs text-slate-500">{{ purchase.package.name }} - {{ purchase.created_at|date }}</p>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                    {% if purchase.payment_status == 'paid' %}bg-green-100 text-green-800
+                                    {% elif purchase.payment_status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ purchase.payment_status|title }}
+                                </span>
+                            </div>
+                        {% empty %}
+                            <div class="px-6 py-12 text-center text-slate-500">
+                                No purchases yet. <a href="{% url 'templates_catalog:template_list' %}" class="text-indigo-600">Browse templates</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <!-- Active Projects -->
+                <section class="bg-white shadow rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200">
+                        <h2 class="text-lg font-medium text-slate-900">Your Projects</h2>
+                    </div>
+                    <div class="divide-y divide-slate-200">
+                        {% for project in active_projects %}
+                            <div class="px-6 py-4">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-medium text-slate-900">{{ project.name }}</p>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                        {{ project.status|title }}
+                                    </span>
+                                </div>
+                                <p class="mt-1 text-xs text-slate-500">Template: {{ project.template.name }}</p>
+                                {% if project.repo_url or project.project_url %}
+                                    <div class="mt-3 flex space-x-3 text-xs">
+                                        {% if project.repo_url %}<a href="{{ project.repo_url }}" class="text-indigo-600 hover:underline">GitHub</a>{% endif %}
+                                        {% if project.project_url %}<a href="{{ project.project_url }}" class="text-indigo-600 hover:underline">Live Site</a>{% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <div class="px-6 py-12 text-center text-slate-500">
+                                Projects will appear here once your deployments are processed.
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+
+            <!-- Customization Requests -->
+            <div class="space-y-6">
+                <section class="bg-white shadow rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200">
+                        <h2 class="text-lg font-medium text-slate-900">Service Requests</h2>
+                    </div>
+                    <div class="divide-y divide-slate-200">
+                        {% for request in recent_requests %}
+                            <div class="px-6 py-4">
+                                <p class="text-sm font-medium text-slate-900">{{ request.subject }}</p>
+                                <div class="mt-1 flex items-center justify-between">
+                                    <span class="text-xs text-slate-500">{{ request.template.name }}</span>
+                                    <span class="text-xs font-medium text-slate-700">{{ request.status|title }}</span>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="px-6 py-8 text-center text-slate-400 text-sm">
+                                No active service requests.
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="bg-slate-50 px-6 py-3 border-t border-slate-200">
+                        <p class="text-xs text-slate-500">Need specific features? Request them from any template page.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
