@@ -107,6 +107,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.User'
 
+LOGIN_URL = '/auth/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
+
 WAGTAIL_SITE_NAME = 'SaaS Marketplace'
 WAGTAIL_APPEND_SLASH = False
 WAGTAILADMIN_BASE_URL = 'http://localhost:8000'

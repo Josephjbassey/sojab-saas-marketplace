@@ -9,12 +9,17 @@ django.setup()
 from apps.templates_catalog.models import TemplateCategory, SaaSTemplate, TemplatePackage, TemplateFeature
 from apps.accounts.models import User
 
+
 def seed_data():
     print("Seeding database...")
     
     # 1. Ensure Superuser
     if not User.objects.filter(email='admin@example.com').exists():
-        User.objects.create_superuser('admin@example.com', 'admin')
+        User.objects.create_superuser(
+            username='admin',
+            email='admin@example.com',
+            password='admin'
+        )
         print("- Created superuser admin@example.com")
 
     # 2. Categories
@@ -69,14 +74,14 @@ def seed_data():
             TemplatePackage.objects.create(
                 template=template,
                 name='Personal License',
+                license_type='personal',
                 price=99.00,
-                license_type='personal'
             )
             TemplatePackage.objects.create(
                 template=template,
                 name='Commercial License',
+                license_type='commercial',
                 price=299.00,
-                license_type='commercial'
             )
             
             # Features

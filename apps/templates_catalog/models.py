@@ -41,8 +41,15 @@ class SaaSTemplate(BaseModel):
         super().save(*args, **kwargs)
 
 class TemplatePackage(BaseModel):
+    LICENSE_TYPE_CHOICES = [
+        ('personal', 'Personal'),
+        ('commercial', 'Commercial'),
+        ('agency', 'Agency'),
+    ]
+
     template = models.ForeignKey(SaaSTemplate, on_delete=models.CASCADE, related_name='packages')
     name = models.CharField(max_length=100, help_text="e.g. Personal, Commercial, Agency")
+    license_type = models.CharField(max_length=20, choices=LICENSE_TYPE_CHOICES, default='personal')
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)

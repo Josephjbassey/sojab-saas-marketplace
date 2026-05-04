@@ -8,8 +8,8 @@
             <!-- Image Gallery (Simplified for MVP) -->
             <div>
                 <div class="aspect-w-3 aspect-h-2 rounded-lg bg-slate-100 overflow-hidden">
-                    {% if template.main_image %}
-                        <img src="{{ template.main_image.url }}" alt="{{ template.name }}" class="w-full h-full object-center object-cover">
+                    {% if template.thumbnail %}
+                        <img src="{{ template.thumbnail.url }}" alt="{{ template.name }}" class="w-full h-full object-center object-cover">
                     {% else %}
                         <div class="w-full h-full flex items-center justify-center text-slate-400">No Image Available</div>
                     {% endif %}
@@ -77,14 +77,18 @@
                     </div>
                 </div>
 
-                <div class="mt-10 flex space-x-4">
-                    <button type="button" class="flex-1 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Purchase License
-                    </button>
-                    <a href="{% if template.demo_url %}{{ template.demo_url }}{% else %}#{% endif %}" class="flex-1 bg-white border border-slate-300 rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Live Demo
-                    </a>
-                </div>
+                <form method="GET" id="purchase-form">
+                    {% csrf_token %}
+                    <div class="mt-10 flex space-x-4">
+                        <button type="submit" id="purchase-btn" disabled 
+                                class="flex-1 bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                            Select a License to Purchase
+                        </button>
+                        <a href="{% if template.demo_url %}{{ template.demo_url }}{% else %}#{% endif %}" class="flex-1 bg-white border border-slate-300 rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Live Demo
+                        </a>
+                    </div>
+                </form>
                 
                 <div class="mt-6 text-center">
                     <a href="{% url 'support:customization_request' template.slug %}" class="text-sm text-indigo-600 font-medium hover:text-indigo-500">
@@ -95,4 +99,24 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Wire package radio buttons to the purchase form
+    document.querySelectorAll('input[name="package"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const form = document.getElementById('purchase-form');
+            const btn = document.getElementById('purchase-btn');
+            const packageId = this.value;
+            form.action = '/purchases/checkout/' + packageId + '/';
+            form.method = 'GET';
+            btn.disabled = false;
+            btn.textContent = 'Purchase License';
+            // Visual selection
+            document.querySelectorAll('input[name="package"]').forEach(r => {
+                r.closest('label').classList.remove('border-indigo-500', 'ring-2', 'ring-indigo-500');
+            });
+            this.closest('label').classList.add('border-indigo-500', 'ring-2', 'ring-indigo-500');
+        });
+    });
+</script>
 {% endblock %}

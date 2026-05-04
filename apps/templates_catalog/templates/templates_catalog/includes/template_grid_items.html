@@ -1,8 +1,8 @@
 {% for template in templates %}
     <div class="flex flex-col rounded-lg shadow-lg overflow-hidden bg-white border border-slate-200 hover:shadow-xl transition-shadow">
         <div class="flex-shrink-0">
-            {% if template.main_image %}
-                <img class="h-48 w-full object-cover" src="{{ template.main_image.url }}" alt="{{ template.name }}">
+            {% if template.thumbnail %}
+                <img class="h-48 w-full object-cover" src="{{ template.thumbnail.url }}" alt="{{ template.name }}">
             {% else %}
                 <div class="h-48 w-full bg-slate-200 flex items-center justify-center text-slate-400 text-sm">No Preview</div>
             {% endif %}

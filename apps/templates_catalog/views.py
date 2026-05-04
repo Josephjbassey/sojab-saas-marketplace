@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
 from .models import SaaSTemplate, TemplateCategory
 
@@ -30,7 +30,7 @@ class TemplateListView(ListView):
         return context
 
 def template_detail(request, slug):
-    template = SaaSTemplate.objects.get(slug=slug, is_active=True)
+    template = get_object_or_404(SaaSTemplate, slug=slug, is_active=True)
     return render(request, 'templates_catalog/template_detail.html', {
         'template': template
     })
