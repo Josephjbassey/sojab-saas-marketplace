@@ -54,3 +54,4 @@ vine==5.1.0
 wagtail==7.3.1
 wcwidth==0.7.0
 Willow==1.12.0
+psycopg2-binary==2.9.10
