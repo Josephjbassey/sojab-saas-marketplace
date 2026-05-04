@@ -7,14 +7,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from apps.templates_catalog.models import TemplateCategory, SaaSTemplate, TemplatePackage, TemplateFeature
-from apps.accounts.models import CustomUser
+from apps.accounts.models import User
 
 def seed_data():
     print("Seeding database...")
     
     # 1. Ensure Superuser
-    if not CustomUser.objects.filter(email='admin@example.com').exists():
-        CustomUser.objects.create_superuser('admin@example.com', 'admin')
+    if not User.objects.filter(email='admin@example.com').exists():
+        User.objects.create_superuser('admin@example.com', 'admin')
         print("- Created superuser admin@example.com")
 
     # 2. Categories
