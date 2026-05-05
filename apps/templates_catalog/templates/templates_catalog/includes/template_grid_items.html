@@ -1,36 +1,62 @@
 {% for template in templates %}
-    <div class="flex flex-col rounded-lg shadow-lg overflow-hidden bg-white border border-slate-200 hover:shadow-xl transition-shadow">
-        <div class="flex-shrink-0">
+    <div class="group card-panel flex flex-col h-full bg-surface border border-surface-light rounded-xl hover:border-orange/50 transition-all duration-300 shadow-md hover:shadow-[0_0_30px_rgba(235,114,27,0.1)] overflow-hidden relative">
+        
+        <!-- Glow Effect on Hover -->
+        <div class="absolute inset-0 bg-gradient-to-b from-orange/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+        <!-- Image Container -->
+        <div class="relative h-56 w-full border-b border-surface-light overflow-hidden bg-void">
             {% if template.thumbnail %}
-                <img class="h-48 w-full object-cover" src="{{ template.thumbnail.url }}" alt="{{ template.name }}">
+                <img class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-transform duration-500 group-hover:scale-105" src="{{ template.thumbnail.url }}" alt="{{ template.name }}">
             {% else %}
-                <div class="h-48 w-full bg-slate-200 flex items-center justify-center text-slate-400 text-sm">No Preview</div>
-            {% endif %}
-        </div>
-        <div class="flex-1 p-6 flex flex-col justify-between">
-            <div class="flex-1">
-                <p class="text-sm font-medium text-indigo-600">
-                    {{ template.category.name }}
-                </p>
-                <a href="{% url 'templates_catalog:template_detail' template.slug %}" class="block mt-2">
-                    <p class="text-xl font-semibold text-slate-900">{{ template.name }}</p>
-                    <p class="mt-3 text-base text-slate-500 line-clamp-3">
-                        {{ template.description }}
-                    </p>
-                </a>
-            </div>
-            <div class="mt-6 flex items-center justify-between">
-                <div class="text-lg font-bold text-slate-900">
-                    From ${{ template.packages.first.price|default:"99" }}
+                <div class="w-full h-full flex items-center justify-center font-mono text-slate-600 text-xs tracking-widest uppercase">
+                    No Preview Available
                 </div>
-                <a href="{% url 'templates_catalog:template_detail' template.slug %}" class="text-indigo-600 font-semibold hover:text-indigo-500">
-                    View Details &rarr;
+            {% endif %}
+            
+            <!-- Badges overlay -->
+            <div class="absolute top-4 left-4 flex gap-2">
+                <span class="bg-void/80 backdrop-blur border border-surface-light text-white font-mono text-[10px] uppercase tracking-wider px-2 py-1 rounded">
+                    {{ template.category.name }}
+                </span>
+            </div>
+            <div class="absolute bottom-4 right-4">
+                <span class="bg-orange text-void font-bold font-mono text-xs px-2 py-1 rounded shadow-lg">
+                    ${{ template.packages.first.price|default:"99" }}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="flex-1 p-6 flex flex-col relative z-10">
+            <h3 class="font-heading font-bold text-xl text-white group-hover:text-orange transition-colors">
+                <a href="{% url 'templates_catalog:template_detail' template.slug %}" class="focus:outline-none">
+                    <!-- block link -->
+                    <span class="absolute inset-0" aria-hidden="true"></span>
+                    {{ template.name }}
                 </a>
+            </h3>
+            
+            <p class="mt-3 text-sm text-slate-400 font-body line-clamp-2 mb-6 flex-grow">
+                {{ template.description }}
+            </p>
+            
+            <!-- Tech Stack Footer -->
+            <div class="pt-4 border-t border-surface-light flex items-center justify-between text-xs font-mono text-slate-500">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500/80"></span>
+                    <span>v1.0.0</span>
+                </div>
+                <span>Deployment Ready</span>
             </div>
         </div>
     </div>
 {% empty %}
-    <div class="col-span-full text-center py-12 text-slate-500">
-        No templates found matching your criteria.
+    <div class="col-span-full py-24 text-center border border-dashed border-surface-light rounded-xl bg-surface/50">
+        <svg class="mx-auto h-12 w-12 text-slate-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+        </svg>
+        <h3 class="text-lg font-heading font-medium text-white mb-1">No templates found</h3>
+        <p class="text-sm font-mono text-slate-500">Adjust your filters to see more results.</p>
     </div>
 {% endfor %}

@@ -4,38 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SaaS Marketplace{% endblock %}</title>
+    <title>{% block title %}Code By SoJab | Premium Developer Templates{% endblock %}</title>
 
-    <!-- Tailwind CSS v4 CDN (For dev/scaffolding) -->
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS v4 CDN -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     
+    <style type="text/tailwindcss">
+        @theme {
+            --color-void: #010E22;
+            --color-surface: #021C3B;
+            --color-surface-hover: #03294E;
+            --color-surface-light: #233E5C;
+            --color-orange: #EB721B;
+            --color-tan: #C89664;
+            --color-brand-blue: #256B97;
+
+            --font-heading: "Space Grotesk", sans-serif;
+            --font-body: "Inter", sans-serif;
+            --font-mono: "JetBrains Mono", monospace;
+        }
+
+        /* Base Component Utilities */
+        body {
+            background-color: var(--color-void);
+            color: #E2E8F0;
+            font-family: var(--font-body);
+        }
+        
+        .btn-primary {
+            @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-md text-void bg-orange hover:bg-[#F28B3E] transition-colors duration-200 shadow-[0_0_15px_rgba(235,114,27,0.3)];
+        }
+        
+        .btn-surface {
+            @apply inline-flex items-center justify-center px-6 py-3 border border-surface-light text-base font-semibold rounded-md text-slate-200 bg-surface hover:bg-surface-hover hover:border-tan transition-colors duration-200;
+        }
+
+        .tech-tag {
+            @apply inline-flex items-center px-2.5 py-0.5 rounded text-xs font-mono font-medium bg-surface text-tan border border-surface-hover;
+        }
+
+        .card-panel {
+            @apply bg-surface rounded-xl border border-surface-light overflow-hidden shadow-lg transition-transform duration-300 hover:border-brand-blue;
+        }
+    </style>
+
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
 
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col antialiased selection:bg-orange selection:text-void">
     {% wagtailuserbar %}
 
-    <nav class="bg-white border-b border-slate-200">
+    <nav class="bg-void border-b border-surface">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+            <div class="flex justify-between h-20 items-center">
                 <div class="flex">
-                    <a href="/" class="flex items-center text-xl font-bold text-indigo-600">
-                        SaaS Mktplc
+                    <a href="/" class="flex items-center space-x-2 group">
+                        <div class="w-8 h-8 rounded bg-orange flex items-center justify-center text-void font-heading font-bold text-lg group-hover:shadow-[0_0_10px_rgba(235,114,27,0.6)] transition-shadow">C</div>
+                        <span class="text-xl font-heading font-bold tracking-tight text-white group-hover:text-slate-200 transition-colors">Code By <span class="text-orange">SoJab</span></span>
                     </a>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="{% url 'templates_catalog:template_list' %}" class="text-slate-600 hover:text-slate-900">Templates</a>
+                <div class="flex items-center space-x-6">
+                    <a href="{% url 'templates_catalog:template_list' %}" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Catalog</a>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'marketplace:dashboard' %}" class="text-slate-600 hover:text-slate-900">Dashboard</a>
+                        <a href="{% url 'marketplace:dashboard' %}" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Dashboard</a>
                         <form method="post" action="{% url 'accounts:logout' %}">
                             {% csrf_token %}
-                            <button type="submit" class="text-slate-600 hover:text-slate-900">Logout</button>
+                            <button type="submit" class="text-sm font-medium text-slate-400 hover:text-orange transition-colors">Logout</button>
                         </form>
                     {% else %}
-                        <a href="{% url 'accounts:login' %}" class="text-slate-600 hover:text-slate-900">Log in</a>
-                        <a href="{% url 'accounts:register' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Sign up</a>
+                        <a href="{% url 'accounts:login' %}" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Log in</a>
+                        <a href="{% url 'accounts:register' %}" class="btn-primary py-2 px-4 text-sm">Get Started</a>
                     {% endif %}
                 </div>
             </div>
@@ -46,9 +91,17 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500">
-            &copy; {% now "Y" %} SaaS Marketplace. All rights reserved.
+    <footer class="bg-void border-t border-surface py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <span class="text-lg font-heading font-bold tracking-tight text-white">Code By <span class="text-orange">SoJab</span></span>
+                <p class="text-sm text-slate-500 mt-2 font-mono">Premium Django & React Templates.</p>
+            </div>
+            <div class="text-slate-500 text-sm font-mono flex space-x-4">
+                <a href="#" class="hover:text-tan transition-colors">Terms</a>
+                <a href="#" class="hover:text-tan transition-colors">Privacy</a>
+                <span>&copy; {% now "Y" %} Code By SoJab</span>
+            </div>
         </div>
     </footer>
 
