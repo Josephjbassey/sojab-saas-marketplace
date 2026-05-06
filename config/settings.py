@@ -11,6 +11,8 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='unsafe-secret-key')
 DEBUG = env('DEBUG')
+if not DEBUG and SECRET_KEY == 'unsafe-secret-key':
+    raise RuntimeError('Set SECRET_KEY in environment when DEBUG=False')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 INSTALLED_APPS = [
