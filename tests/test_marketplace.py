@@ -132,3 +132,22 @@ class TestDashboard:
         response = authenticated_client.get(url)
         assert response.status_code == 200
         assert client_project.name in response.content.decode()
+
+    def test_purchase_history_shows_license_and_status(self, authenticated_client, purchase):
+        url = reverse('marketplace:purchase_history')
+        response = authenticated_client.get(url)
+        body = response.content.decode()
+        assert response.status_code == 200
+        assert purchase.package.get_license_type_display() in body
+        assert purchase.status.title() in body
+
+
+@pytest.mark.django_db
+class TestAuthorization:
+    def test_user_cannot_access_another_users_purchase_success(self, client, purchase):
+        from apps.accounts.models import User
+        other = User.objects.create_user(username='other', email='other@example.com', password='Otherpass123!')
+        client.login(username='other', password='Otherpass123!')
+        url = reverse('purchases:success', kwargs={'purchase_id': purchase.id})
+        response = client.get(url)
+        assert response.status_code == 404

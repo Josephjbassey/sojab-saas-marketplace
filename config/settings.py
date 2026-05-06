@@ -11,7 +11,9 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='unsafe-secret-key')
 DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+if not DEBUG and SECRET_KEY == 'unsafe-secret-key':
+    raise RuntimeError('Set SECRET_KEY in environment when DEBUG=False')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 INSTALLED_APPS = [
     'apps.accounts',
@@ -120,3 +122,8 @@ CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/1')
 
 # Optional Dummy Payments
 DUMMY_PAYMENTS_ENABLED = env.bool('DUMMY_PAYMENTS_ENABLED', default=True)
+
+# Security settings (enable in production via env)
+CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=not DEBUG)
+SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=not DEBUG)
+SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=False)
