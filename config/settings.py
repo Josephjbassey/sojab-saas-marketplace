@@ -11,7 +11,10 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='unsafe-secret-key')
 DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+DEFAULT_INSECURE_SECRET_KEYS = {'unsafe-secret-key', 'dev-secret-key-change-in-production'}
+if not DEBUG and SECRET_KEY in DEFAULT_INSECURE_SECRET_KEYS:
+    raise RuntimeError('Set a non-default SECRET_KEY in environment when DEBUG=False')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 INSTALLED_APPS = [
     'apps.accounts',
@@ -53,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,6 +104,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+}
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -120,3 +128,8 @@ CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/1')
 
 # Optional Dummy Payments
 DUMMY_PAYMENTS_ENABLED = env.bool('DUMMY_PAYMENTS_ENABLED', default=True)
+
+# Security settings (enable in production via env)
+CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=not DEBUG)
+SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=not DEBUG)
+SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=False)
