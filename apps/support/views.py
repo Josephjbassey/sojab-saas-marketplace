@@ -1,12 +1,17 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import CustomizationRequestForm
 from apps.templates_catalog.models import SaaSTemplate
 
+
+def template_to_saas_customization(request):
+    return render(request, 'support/template_to_saas_customization.html')
+
+
 @login_required
 def customization_request_create(request, template_slug):
     template = get_object_or_404(SaaSTemplate, slug=template_slug, is_active=True)
-    
+
     if request.method == 'POST':
         form = CustomizationRequestForm(request.POST, template=template)
         if form.is_valid():
@@ -18,7 +23,7 @@ def customization_request_create(request, template_slug):
             return render(request, 'support/success.html', {'template': template})
     else:
         form = CustomizationRequestForm(template=template)
-    
+
     return render(request, 'support/customization_request_form.html', {
         'form': form,
         'template': template

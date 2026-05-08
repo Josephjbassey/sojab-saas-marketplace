@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Template-to-SaaS Customization | Code By SoJab{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+    <section class="text-center space-y-5">
+        <p class="text-indigo-400 font-mono text-sm tracking-widest uppercase">Service</p>
+        <h1 class="text-4xl md:text-5xl font-bold text-white">Turn any premium SaaS template into a working product.</h1>
+        <p class="text-slate-300 max-w-3xl mx-auto text-lg">
+            Bring a licensed frontend template from ThemeForest, UI8, Webflow, Framer, or Tailwind UI,
+            and we will transform it into a production-ready SaaS platform.
+        </p>
+    </section>
+
+    <section class="bg-slate-900/70 border border-slate-800 rounded-xl p-8">
+        <h2 class="text-2xl font-semibold text-white mb-4">The Problem</h2>
+        <p class="text-slate-300 leading-relaxed">
+            Most premium templates look beautiful but only include static frontend screens.
+            They usually do not include backend logic, database models, CMS content workflows,
+            payments, admin tooling, or deployment setup.
+        </p>
+    </section>
+
+    <section class="bg-slate-900/70 border border-slate-800 rounded-xl p-8">
+        <h2 class="text-2xl font-semibold text-white mb-4">Our Solution</h2>
+        <p class="text-slate-300 leading-relaxed">
+            We connect your chosen template to a real Django backend and business workflow,
+            so your product can handle real users, content, subscriptions, and operations.
+        </p>
+    </section>
+
+    <section>
+        <h2 class="text-2xl font-semibold text-white mb-6">What We Build</h2>
+        <ul class="grid md:grid-cols-2 gap-4">
+            {% for item in "Django backend,PostgreSQL database,Wagtail CMS,Auth system,Admin dashboard,Client dashboard,Payment integration,Email notifications,Deployment setup".split(',') %}
+            <li class="bg-slate-900/70 border border-slate-800 rounded-lg px-4 py-3 text-slate-200">
+                {{ item }}
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section>
+        <h2 class="text-2xl font-semibold text-white mb-6">Process</h2>
+        <ol class="space-y-4">
+            {% for step in "Choose or provide a licensed template,Define the business workflow,Customize branding and pages,Build backend and dashboard,Connect payments/CMS,Deploy and hand over".split(',') %}
+            <li class="bg-slate-900/70 border border-slate-800 rounded-lg px-4 py-3 text-slate-200">
+                <span class="font-mono text-indigo-400 mr-2">{{ forloop.counter }}.</span>{{ step }}
+            </li>
+            {% endfor %}
+        </ol>
+    </section>
+
+    <section>
+        <h2 class="text-2xl font-semibold text-white mb-6">Packages</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+            {% for package in "Frontend Integration,Backend Setup,Full SaaS Launch,Ongoing Maintenance".split(',') %}
+            <div class="bg-slate-900/70 border border-slate-800 rounded-lg px-4 py-4 text-slate-200 font-medium">
+                {{ package }}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="bg-amber-950/30 border border-amber-700/30 rounded-xl p-8">
+        <h2 class="text-2xl font-semibold text-white mb-4">License Disclaimer</h2>
+        <p class="text-slate-300 leading-relaxed">
+            We do not sell or redistribute copied third-party templates.
+            Clients must purchase or own the correct license for any template used.
+            A single purchased template license may not be reused across multiple unrelated client projects
+            unless the original license explicitly allows that usage.
+        </p>
+    </section>
+</div>
+{% endblock %}
