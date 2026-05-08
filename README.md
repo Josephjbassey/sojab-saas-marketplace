@@ -50,12 +50,12 @@ This project is separated into distinct Django apps for maintainability:
    ```
 2. Build and start containers:
    ```bash
-   docker-compose up --build -d
+   docker compose up --build -d
    ```
 3. Run migrations and create a superuser:
    ```bash
-   docker-compose exec web python manage.py migrate
-   docker-compose exec web python manage.py createsuperuser
+   docker compose exec web python manage.py migrate
+   docker compose exec web python manage.py createsuperuser
    ```
 4. Access:
    - Frontend: `http://localhost:8000`
@@ -65,5 +65,5 @@ This project is separated into distinct Django apps for maintainability:
 ## Testing
 Run the test suite:
 ```bash
-docker-compose exec web pytest
+docker compose exec web pytest
 ```

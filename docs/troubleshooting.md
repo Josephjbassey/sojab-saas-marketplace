@@ -4,7 +4,7 @@ Common issues and their resolutions.
 
 ## Environment Issues
 
-- **Docker containers won't start:** Check `docker-compose logs`. Ensure ports 8001 (Web) and 5436 (DB) are free.
+- **Docker containers won't start:** Check `docker compose logs`. Ensure ports 8001 (Web) and 5436 (DB) are free.
 - **Database Connection Refused:** Ensure the `db` container is healthy before starting `web`.
 
 ## Celery Tasks
