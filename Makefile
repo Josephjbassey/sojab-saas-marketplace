@@ -2,7 +2,7 @@
 
 # Makefile for Django SaaS Template Marketplace
 
-.PHONY: init dev check migrate makemigrations test shell superuser logs celery down
+.PHONY: init dev check migrate makemigrations migration-check verify test shell superuser logs celery down
 
 init:
 	docker-compose up --build -d
@@ -19,6 +19,15 @@ migrate:
 
 makemigrations:
 	docker-compose exec web python manage.py makemigrations
+
+migration-check:
+	docker-compose exec web python manage.py makemigrations --check --dry-run
+
+verify:
+	docker-compose exec web python manage.py check
+	docker-compose exec web python manage.py makemigrations --check --dry-run
+	docker-compose exec web python manage.py migrate
+	docker-compose exec web pytest -v
 
 test:
 	docker-compose exec web pytest
