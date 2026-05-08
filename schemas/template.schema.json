@@ -27,6 +27,10 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "planned_payment_providers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "supported_deployment_targets": {
       "type": "array",
       "items": { "type": "string" }

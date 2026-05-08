@@ -11,9 +11,12 @@ The `apps.billing` module defines a standard interface for:
 
 ## Supported Providers
 
-- **Stripe:** Default for international payments.
-- **Paystack:** Supported for regional markets.
-- **Stub/Dummy:** Used for local development and testing.
+- **Stub/Dummy (Current MVP):** Used for development and testing. This is the only currently active provider.
+
+## Planned Providers (Future)
+
+- **Stripe:** Planned for international payments.
+- **Paystack:** Planned for regional markets.
 
 ## Transaction Flow
 

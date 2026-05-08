@@ -1,3 +1,5 @@
+# Note: This Makefile uses "docker-compose" syntax. Users with Docker Compose v2 may replace it with "docker compose" if needed.
+
 # Makefile for Django SaaS Template Marketplace
 
 .PHONY: init dev check migrate makemigrations test shell superuser logs celery down
