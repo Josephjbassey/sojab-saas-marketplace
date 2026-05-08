@@ -18,7 +18,7 @@ This guide covers setting up the Marketplace Platform for local development.
    ```bash
    make init
    # or
-   docker-compose up --build -d
+   docker compose up --build -d
    ```
 4. **Database Migrations:**
    ```bash

@@ -20,3 +20,7 @@ Templates must adhere to the following standards:
 
 - Authors must specify the `license_type` in the manifest.
 - All third-party dependencies must be declared and compliant with the template's license.
+
+## Third-Party Template Licensing Disclaimer
+
+Any submitted template that includes third-party code, themes, UI kits, images, fonts, or other assets must include a clear licensing disclaimer in its own documentation. Authors are solely responsible for ensuring redistribution rights and license compliance for all bundled assets.
