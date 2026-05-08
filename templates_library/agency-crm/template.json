@@ -1,0 +1,39 @@
+{
+  "name": "Agency CRM",
+  "slug": "agency-crm",
+  "category": "CRM",
+  "description": "A robust CRM boilerplate for digital agencies, featuring lead management, client portals, and automated reporting.",
+  "stack": {
+    "backend": "Django 5.x",
+    "frontend": "Tailwind CSS + HTMX",
+    "database": "PostgreSQL"
+  },
+  "features": [
+    "Lead tracking",
+    "Client management",
+    "Project workspaces",
+    "Invoicing integration",
+    "Activity feeds"
+  ],
+  "configuration_options": [
+    "Custom branding",
+    "SaaS subscription tiers",
+    "Email provider integration"
+  ],
+  "supported_payment_providers": ["Stripe", "Paystack"],
+  "supported_deployment_targets": ["Railway", "DigitalOcean", "AWS"],
+  "cms_enabled": true,
+  "version": "1.0.0",
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2023-10-01",
+      "changes": ["Initial release"]
+    }
+  ],
+  "license_type": "commercial",
+  "documentation_paths": {
+    "getting_started": "docs/getting-started.md",
+    "deployment": "docs/deployment.md"
+  }
+}
