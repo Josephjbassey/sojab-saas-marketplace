@@ -33,7 +33,7 @@
     <section>
         <h2 class="text-2xl font-semibold text-white mb-6">What We Build</h2>
         <ul class="grid md:grid-cols-2 gap-4">
-            {% for item in "Django backend,PostgreSQL database,Wagtail CMS,Auth system,Admin dashboard,Client dashboard,Payment integration,Email notifications,Deployment setup".split(',') %}
+            {% for item in what_we_build %}
             <li class="bg-slate-900/70 border border-slate-800 rounded-lg px-4 py-3 text-slate-200">
                 {{ item }}
             </li>
@@ -44,7 +44,7 @@
     <section>
         <h2 class="text-2xl font-semibold text-white mb-6">Process</h2>
         <ol class="space-y-4">
-            {% for step in "Choose or provide a licensed template,Define the business workflow,Customize branding and pages,Build backend and dashboard,Connect payments/CMS,Deploy and hand over".split(',') %}
+            {% for step in process_steps %}
             <li class="bg-slate-900/70 border border-slate-800 rounded-lg px-4 py-3 text-slate-200">
                 <span class="font-mono text-indigo-400 mr-2">{{ forloop.counter }}.</span>{{ step }}
             </li>
@@ -55,7 +55,7 @@
     <section>
         <h2 class="text-2xl font-semibold text-white mb-6">Packages</h2>
         <div class="grid md:grid-cols-2 gap-4">
-            {% for package in "Frontend Integration,Backend Setup,Full SaaS Launch,Ongoing Maintenance".split(',') %}
+            {% for package in packages %}
             <div class="bg-slate-900/70 border border-slate-800 rounded-lg px-4 py-4 text-slate-200 font-medium">
                 {{ package }}
             </div>

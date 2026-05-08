@@ -5,7 +5,29 @@ from apps.templates_catalog.models import SaaSTemplate
 
 
 def template_to_saas_customization(request):
-    return render(request, 'support/template_to_saas_customization.html')
+    what_we_build = [
+        "Django backend", "PostgreSQL database", "Wagtail CMS", "Auth system",
+        "Admin dashboard", "Client dashboard", "Payment integration",
+        "Email notifications", "Deployment setup"
+    ]
+    process_steps = [
+        "Choose or provide a licensed template",
+        "Define the business workflow",
+        "Customize branding and pages",
+        "Build backend and dashboard",
+        "Connect payments/CMS",
+        "Deploy and hand over"
+    ]
+    packages = [
+        "Frontend Integration", "Backend Setup",
+        "Full SaaS Launch", "Ongoing Maintenance"
+    ]
+
+    return render(request, 'support/template_to_saas_customization.html', {
+        'what_we_build': what_we_build,
+        'process_steps': process_steps,
+        'packages': packages,
+    })
 
 
 @login_required
