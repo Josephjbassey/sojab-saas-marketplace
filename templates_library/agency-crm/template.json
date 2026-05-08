@@ -20,7 +20,8 @@
     "SaaS subscription tiers",
     "Email provider integration"
   ],
-  "supported_payment_providers": ["Stripe", "Paystack"],
+  "supported_payment_providers": ["Dummy"],
+  "planned_payment_providers": ["Stripe", "Paystack"],
   "supported_deployment_targets": ["Railway", "DigitalOcean", "AWS"],
   "cms_enabled": true,
   "version": "1.0.0",
@@ -34,6 +35,6 @@
   "license_type": "commercial",
   "documentation_paths": {
     "getting_started": "docs/getting-started.md",
-    "deployment": "docs/deployment.md"
+    "deployment": "docs/delivery-workflow.md"
   }
 }
