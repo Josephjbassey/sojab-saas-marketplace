@@ -1,6 +1,6 @@
 # Organizations and Workspaces
 
-The marketplace supports multi-tenant workspaces through the **Organizations** and **Memberships** models.
+The marketplace supports multi-tenant workspaces through the **Organizations** and **Memberships** models. This enables business clients to manage projects, purchases, and requests as teams.
 
 ## Models
 
@@ -8,23 +8,34 @@ The marketplace supports multi-tenant workspaces through the **Organizations** a
 Represents a workspace or company.
 - `name`: Human-readable name.
 - `slug`: URL-friendly identifier.
+- `owner`: The primary user responsible for the organization.
 - `is_active`: Toggle for workspace access.
 
 ### Membership
 Connects users to organizations with specific roles.
 - `user`: Reference to the User.
 - `organization`: Reference to the Organization.
-- `role`: One of `owner`, `admin`, or `member`.
+- `role`: One of `owner`, `admin`, `member`, or `guest`.
 
 ## Roles and Permissions
 
 - **Owner**: Full control over the organization, including billing and member management.
 - **Admin**: Can manage projects and customization requests within the organization.
 - **Member**: Can view resources and participate in assigned projects.
+- **Guest**: Limited view access to specific shared resources.
+
+## Services and Helpers
+
+The system provides several service functions in `apps/organizations/services.py` to manage organizations:
+
+- `create_default_organization_for_user(user)`: Automatically creates a personal workspace for a new user.
+- `add_member_to_organization(organization, user, role)`: Handles adding or updating memberships.
+- `get_user_organizations(user)`: Retrieves all active organizations the user belongs to.
+- `user_has_role(user, organization, roles)`: Helper to check permissions.
 
 ## Architecture
 
-The system is designed to support future migration from user-owned resources to organization-owned resources.
-Existing models (`TemplatePurchase`, `CustomizationRequest`, `ClientProject`, `DeploymentRequest`) now include an optional `organization` field.
+The system is designed to support a transition from user-owned resources to organization-owned resources.
+Existing models (`TemplatePurchase`, `CustomizationRequest`, `ClientProject`, `DeploymentRequest`) include an optional `organization` field.
 
-When an organization is associated with a resource, access logic should prefer membership-based checks over direct user ownership.
+When an organization is associated with a resource, access logic should prioritize membership-based checks over direct user ownership.
