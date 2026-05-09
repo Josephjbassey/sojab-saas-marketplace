@@ -76,7 +76,13 @@ def customization_request_create(request, template_slug):
                 )
             except Exception as e:
                 logger.exception(
-                    f"Error processing side effects for CustomizationRequest {custom_request.id} (User: {request.user.id})"
+                    "Error processing support side effects",
+                    extra={
+                        'template_name': template.name,
+                        'custom_request_id': custom_request.id,
+                        'user_id': request.user.id,
+                        'user_email': request.user.email,
+                    },
                 )
 
             return render(request, 'support/success.html', {'template': template})

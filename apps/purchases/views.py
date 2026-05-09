@@ -36,12 +36,25 @@ def checkout(request, package_id):
             status='pending',
         )
 
-        # Deterministic organization selection (e.g. by creation date)
-        # In a real app, this should be selected by the user in the form.
-        user_orgs = request.user.memberships.order_by('created_at')
-        if user_orgs.exists():
+        user_orgs = request.user.memberships.select_related('organization')
+        organization_id = request.POST.get('organization_id')
+
+        # Multi-org users must explicitly choose an organization to avoid misattribution.
+        if organization_id:
+            selected_membership = user_orgs.filter(organization_id=organization_id).first()
+            if not selected_membership:
+                messages.error(request, 'Invalid organization selected.')
+                purchase.delete()
+                return redirect('purchases:checkout', package_id=package_id)
+            purchase.organization = selected_membership.organization
+            purchase.save(update_fields=['organization'])
+        elif user_orgs.count() == 1:
             purchase.organization = user_orgs.first().organization
             purchase.save(update_fields=['organization'])
+        elif user_orgs.count() > 1:
+            messages.error(request, 'Please select an organization to continue checkout.')
+            purchase.delete()
+            return redirect('purchases:checkout', package_id=package_id)
 
         # Process dummy payment
         payment_service = get_payment_service()
