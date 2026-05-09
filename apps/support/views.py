@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import CustomizationRequestForm
 from apps.templates_catalog.models import SaaSTemplate
+from apps.notifications.services import notify_user
+from apps.audit.services import log_action
 
 
 def template_to_saas_customization(request):
@@ -41,7 +43,25 @@ def customization_request_create(request, template_slug):
             custom_request.user = request.user
             custom_request.template = template
             custom_request.save()
-            # In a real app, send email notification here
+
+            # Send notification to the user
+            notify_user(
+                user=request.user,
+                title="Customization Request Received",
+                message=f"We have received your customization request for {template.name}. Our team will review it shortly.",
+                metadata={"request_id": str(custom_request.id)}
+            )
+
+            # Log audit event
+            log_action(
+                actor=request.user,
+                action='customization_request_created',
+                resource=custom_request, organization=custom_request.organization,
+                message=f"Customization request created for {template.name}",
+                request=request,
+                metadata={"request_id": str(custom_request.id)}
+            )
+
             return render(request, 'support/success.html', {'template': template})
     else:
         form = CustomizationRequestForm(template=template)
