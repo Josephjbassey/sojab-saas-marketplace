@@ -16,10 +16,14 @@ class Note(BaseModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notes')
     content = models.TextField()
 
-    # Generic relation to link notes to any CRM entity (Client, Lead, Project, etc.)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.UUIDField()
     content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['content_type', 'object_id']),
+        ]
 
     def __str__(self):
         return f"Note by {self.user.username} on {self.created_at}"
