@@ -1,4 +1,4 @@
-from django.db import models, transaction
+from django.db import models
 from django.conf import settings
 from apps.common.models import BaseModel
 from apps.templates_catalog.models import SaaSTemplate
@@ -28,14 +28,13 @@ class TemplateVersion(BaseModel):
         return f"{self.template.name} v{self.version}"
 
     def save(self, *args, **kwargs):
-        with transaction.atomic():
-            super().save(*args, **kwargs)
-            if self.is_latest:
-                # Ensure only one version is latest for this template
-                TemplateVersion.objects.filter(
-                    template=self.template,
-                    is_latest=True
-                ).exclude(pk=self.pk).update(is_latest=False)
+        if self.is_latest:
+            # Ensure only one version is latest for this template
+            TemplateVersion.objects.filter(
+                template=self.template,
+                is_latest=True
+            ).update(is_latest=False)
+        super().save(*args, **kwargs)
 
 
 class TemplateLicense(BaseModel):

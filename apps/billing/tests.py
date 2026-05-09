@@ -113,3 +113,51 @@ class TestBillingViews:
                 purchase.refresh_from_db()
                 assert purchase.status == 'paid'
                 assert WebhookEvent.objects.filter(event_type='charge.success').exists()
+
+@pytest.fixture
+def subscription_plan(db):
+    from .models import SubscriptionPlan
+    return SubscriptionPlan.objects.create(
+        name='Monthly Pro',
+        slug='monthly-pro',
+        price=29.00,
+        interval='monthly'
+    )
+
+@pytest.mark.django_db
+class TestSubscriptions:
+    def test_plan_creation(self, subscription_plan):
+        assert subscription_plan.name == 'Monthly Pro'
+        assert subscription_plan.price == 29.00
+        assert subscription_plan.interval == 'monthly'
+
+    def test_subscription_creation(self, user, subscription_plan):
+        from .services import create_subscription_record
+        subscription = create_subscription_record(user, subscription_plan)
+        assert subscription.user == user
+        assert subscription.plan == subscription_plan
+        assert subscription.status == 'trialing'
+        assert subscription.is_active is True
+
+    def test_subscription_status_changes(self, user, subscription_plan):
+        from .services import create_subscription_record, mark_subscription_active, cancel_subscription_record, expire_subscription_record
+        subscription = create_subscription_record(user, subscription_plan)
+
+        mark_subscription_active(subscription)
+        assert subscription.status == 'active'
+
+        cancel_subscription_record(subscription, at_period_end=True)
+        assert subscription.cancel_at_period_end is True
+        assert subscription.status == 'active'
+
+        cancel_subscription_record(subscription, at_period_end=False)
+        assert subscription.status == 'cancelled'
+        assert subscription.is_active is False
+
+        expire_subscription_record(subscription)
+        assert subscription.status == 'expired'
+
+    def test_organization_subscription(self, user, organization, subscription_plan):
+        from .services import create_subscription_record
+        subscription = create_subscription_record(user, subscription_plan, organization=organization)
+        assert subscription.organization == organization

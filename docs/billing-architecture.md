@@ -57,3 +57,21 @@ Paystack webhooks are used to ensure payments are recorded even if the user clos
 - Use `pk_test_...` and `sk_test_...` keys for development.
 - Switch to live keys for production.
 - Ensure your `PAYSTACK_CALLBACK_URL` matches the environment (localhost for dev, real domain for prod).
+
+## Subscription Foundation (Phase 13)
+
+The marketplace now includes models and services to support recurring billing.
+
+### Concepts
+- **SubscriptionPlan**: Defines the name, price, interval (monthly, yearly, etc.), and included features.
+- **Subscription**: Tracks a user or organization's active enrollment in a plan, including period start/end and cancellation status.
+
+### Statuses
+- `active`: The user has full access.
+- `trialing`: The user is in a trial period.
+- `past_due`: A payment failed, access may be restricted soon.
+- `cancelled`: The user has cancelled, but access remains until `current_period_end` if `cancel_at_period_end` is True.
+- `expired`: The subscription is no longer active.
+
+### Roadmap
+Future phases will integrate these models with Stripe and Paystack's subscription APIs to automate charging and renewal.

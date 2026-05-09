@@ -1,4 +1,3 @@
-{% load l10n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +21,7 @@
 
         <div class="details">
             <p><strong>Transaction ID:</strong> {{ purchase.transaction_id }}</p>
-            <p><strong>Amount Paid:</strong> {{ purchase.amount_paid|localize }}</p>
+            <p><strong>Amount Paid:</strong> {{ purchase.amount_paid }}</p>
         </div>
 
         <p>You can access your template in your dashboard.</p>
