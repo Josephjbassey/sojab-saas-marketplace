@@ -36,19 +36,9 @@ def checkout(request, package_id):
             status='pending',
         )
 
-        user_orgs = request.user.memberships.select_related('organization')
-        organization_id = request.POST.get('organization_id')
-
-        # Multi-org users must explicitly choose an organization to avoid misattribution.
-        if organization_id:
-            selected_membership = user_orgs.filter(organization_id=organization_id).first()
-            if not selected_membership:
-                messages.error(request, 'Invalid organization selected.')
-                purchase.delete()
-                return redirect('purchases:checkout', package_id=package_id)
-            purchase.organization = selected_membership.organization
-            purchase.save(update_fields=['organization'])
-        elif user_orgs.count() == 1:
+        # Link organization if user has one
+        user_orgs = request.user.memberships.order_by('created_at')
+        if user_orgs.exists():
             purchase.organization = user_orgs.first().organization
             purchase.save(update_fields=['organization'])
         elif user_orgs.count() > 1:
@@ -56,49 +46,54 @@ def checkout(request, package_id):
             purchase.delete()
             return redirect('purchases:checkout', package_id=package_id)
 
-        # Process dummy payment
+        # Process payment
         payment_service = get_payment_service()
         result = payment_service.create_payment(purchase, package.price)
 
         if result.success:
-            confirmation = payment_service.confirm_payment(purchase)
-            if confirmation.success:
-                # Notifications & Audit & Email
-                notify_user(
-                    request.user,
-                    "Purchase Successful",
-                    f"You have successfully purchased {template.name}.",
-                    organization=purchase.organization
-                )
-                log_action(
-                    request.user,
-                    AuditLog.ACTION_PAYMENT_COMPLETED,
-                    resource=purchase,
-                    organization=purchase.organization,
-                    request=request,
-                    message=f"Purchased {template.name}"
-                )
-                send_template_email(
-                    "Your Purchase Confirmation",
-                    [request.user.email],
-                    "purchase_confirmation",
-                    build_email_context(request.user, purchase=purchase)
-                )
+            if result.authorization_url:
+                # Real provider (Paystack) - redirect to gateway
+                return redirect(result.authorization_url)
+            else:
+                # Dummy provider or immediate success
+                confirmation = payment_service.confirm_payment(purchase)
+                if confirmation.success:
+                    # Side effects
+                    notify_user(
+                        request.user,
+                        "Purchase Successful",
+                        f"You have successfully purchased {template.name}.",
+                        organization=purchase.organization
+                    )
+                    log_action(
+                        request.user,
+                        AuditLog.ACTION_PAYMENT_COMPLETED,
+                        resource=purchase,
+                        organization=purchase.organization,
+                        request=request,
+                        message=f"Purchased {template.name}"
+                    )
+                    send_template_email(
+                        "Your Purchase Confirmation",
+                        [request.user.email],
+                        "purchase_confirmation",
+                        build_email_context(request.user, purchase=purchase)
+                    )
 
-                messages.success(request, 'Purchase completed successfully!')
-                return redirect('purchases:success', purchase_id=purchase.id)
+                    messages.success(request, 'Purchase completed successfully!')
+                    return redirect('purchases:success', purchase_id=purchase.id)
 
-        # Payment failed
-        payment_service.mark_purchase_failed(purchase, 'Payment processing failed')
+        # Payment initialization failed
+        payment_service.mark_purchase_failed(purchase, result.error)
         log_action(
             request.user,
             AuditLog.ACTION_PAYMENT_FAILED,
             resource=purchase,
             organization=purchase.organization,
             request=request,
-            message=f"Purchase failed for {template.name}"
+            message=f"Purchase failed for {template.name}: {result.error}"
         )
-        messages.error(request, 'Payment failed. Please try again.')
+        messages.error(request, f"Payment failed: {result.error}")
         return redirect('purchases:checkout', package_id=package_id)
 
     return render(request, 'purchases/checkout.html', {
@@ -123,7 +118,7 @@ def confirm_purchase(request, purchase_id):
     result = payment_service.confirm_payment(purchase)
 
     if result.success:
-        # Notifications & Audit & Email
+        # Side effects
         notify_user(
             request.user,
             "Purchase Confirmed",
@@ -148,7 +143,7 @@ def confirm_purchase(request, purchase_id):
         messages.success(request, 'Purchase confirmed!')
         return redirect('purchases:success', purchase_id=purchase.id)
 
-    messages.error(request, 'Could not confirm payment.')
+    messages.error(request, f"Could not confirm payment: {result.error}")
     return redirect('marketplace:dashboard')
 
 @login_required
