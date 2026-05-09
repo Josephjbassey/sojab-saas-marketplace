@@ -1,8 +1,5 @@
 from django.contrib import admin
-
-# Register your models here.
-
-from .models import SubscriptionPlan, Subscription
+from .models import SubscriptionPlan, Subscription, PaymentTransaction, WebhookEvent
 
 @admin.register(SubscriptionPlan)
 class SubscriptionPlanAdmin(admin.ModelAdmin):
@@ -19,3 +16,18 @@ class SubscriptionAdmin(admin.ModelAdmin):
     search_fields = ('user__email', 'organization__name', 'provider_subscription_id')
     readonly_fields = ('id', 'created_at', 'updated_at')
     raw_id_fields = ('user', 'organization', 'plan')
+
+@admin.register(PaymentTransaction)
+class PaymentTransactionAdmin(admin.ModelAdmin):
+    list_display = ('purchase', 'provider', 'external_id', 'amount', 'status', 'created_at')
+    list_filter = ('provider', 'status', 'created_at')
+    search_fields = ('external_id', 'purchase__transaction_id', 'purchase__user__email')
+    readonly_fields = ('id', 'created_at', 'updated_at')
+    raw_id_fields = ('purchase',)
+
+@admin.register(WebhookEvent)
+class WebhookEventAdmin(admin.ModelAdmin):
+    list_display = ('provider', 'event_type', 'processed', 'processed_at', 'created_at')
+    list_filter = ('provider', 'processed', 'created_at')
+    search_fields = ('event_type',)
+    readonly_fields = ('id', 'created_at', 'updated_at')
