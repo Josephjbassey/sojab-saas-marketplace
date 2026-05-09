@@ -12,4 +12,27 @@ A professional Agency CRM built with Django, Wagtail, and HTMX.
 - **Production Ready**: Optimized for Docker, PostgreSQL, and Redis.
 
 ## Getting Started
-See [docs/getting-started.md](docs/getting-started.md) for installation instructions.
+
+### 1. Initialize
+```bash
+make init
+```
+*Note: This will use the provided docker-compose.example.yml*
+
+### 2. Run Migrations
+```bash
+python manage.py migrate
+```
+
+### 3. Seed Data
+```bash
+python seed_crm_data.py
+```
+
+### 4. Start Development
+```bash
+make dev
+```
+
+## Documentation
+See the `docs/` folder for detailed guides on project structure, customization, and deployment.
