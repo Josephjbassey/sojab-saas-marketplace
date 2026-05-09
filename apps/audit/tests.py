@@ -37,3 +37,7 @@ class TestAuditLog:
         """Verify action is required."""
         with pytest.raises(ValueError, match="Action is required"):
             log_action(user, "")
+
+    def test_log_action_requires_actor(self):
+        with pytest.raises(ValueError, match="Actor is required"):
+            log_action(None, AuditLog.ACTION_UPDATE)

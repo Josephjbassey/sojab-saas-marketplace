@@ -20,7 +20,10 @@ def log_action(actor: Optional[Any], action: str, resource: Optional[Any] = None
     Raises:
         ValueError: If action is missing or empty.
     """
-    if not action:
+    if actor is None or (isinstance(actor, str) and not actor.strip()):
+        raise ValueError("Actor is required for audit logging.")
+
+    if action is None or (isinstance(action, str) and not action.strip()):
         raise ValueError("Action is required for audit logging.")
 
     resource_type = ""
