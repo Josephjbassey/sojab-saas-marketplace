@@ -9,6 +9,7 @@ Located in the `apps/` directory:
 - `billing`: Abstracted payment processing.
 - `cms`: Wagtail CMS for content management.
 - `deployments`: Tracking delivery and setup requests.
+- `files`: Centralized file storage abstraction.
 - `licensing`: License key generation and validation.
 - `marketplace`: Core platform views.
 - `organizations`: Workspace and team management.
