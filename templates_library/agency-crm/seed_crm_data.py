@@ -1,7 +1,6 @@
 import os
 import django
 import secrets
-import sys
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
@@ -23,7 +22,7 @@ def seed():
         admin_password = secrets.token_urlsafe(16)
         is_generated = True
 
-    admin, created = User.objects.get_or_create(
+    admin, _ = User.objects.get_or_create(
         username='admin',
         defaults={'is_staff': True, 'is_superuser': True}
     )
