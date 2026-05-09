@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'apps.notifications',
     'apps.audit',
     'apps.emails',
+    'apps.generator',
 ]
 
 MIDDLEWARE = [
