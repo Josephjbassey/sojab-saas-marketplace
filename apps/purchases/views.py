@@ -5,6 +5,7 @@ from apps.templates_catalog.models import TemplatePackage
 from .models import TemplatePurchase
 from apps.billing.services import get_payment_service
 from apps.notifications.services import notify_user
+from apps.audit.services import log_action
 
 
 @login_required
@@ -38,6 +39,15 @@ def checkout(request, package_id):
         payment_service = get_payment_service()
         result = payment_service.create_payment(purchase, package.price)
 
+        log_action(
+            actor=request.user,
+            action='payment_initiated',
+            resource=purchase, organization=purchase.organization,
+            message=f"Payment initiated for {package.name}",
+            request=request,
+            metadata={"purchase_id": str(purchase.id)}
+        )
+
         if result.success:
             confirmation = payment_service.confirm_payment(purchase)
             if confirmation.success:
@@ -47,11 +57,27 @@ def checkout(request, package_id):
                     message=f"Thank you for purchasing the {package.name} license for {template.name}.",
                     metadata={"purchase_id": str(purchase.id)}
                 )
+                log_action(
+                    actor=request.user,
+                    action='payment_completed',
+                    resource=purchase, organization=purchase.organization,
+                    message=f"Payment completed for {package.name}",
+                    request=request,
+                    metadata={"purchase_id": str(purchase.id)}
+                )
                 messages.success(request, 'Purchase completed successfully!')
                 return redirect('purchases:success', purchase_id=purchase.id)
 
         # Payment failed
         payment_service.mark_purchase_failed(purchase, 'Payment processing failed')
+        log_action(
+            actor=request.user,
+            action='payment_failed',
+            resource=purchase, organization=purchase.organization,
+            message=f"Payment failed for {package.name}",
+            request=request,
+            metadata={"purchase_id": str(purchase.id)}
+        )
         messages.error(request, 'Payment failed. Please try again.')
         return redirect('purchases:checkout', package_id=package_id)
 
@@ -82,6 +108,14 @@ def confirm_purchase(request, purchase_id):
             user=request.user,
             title="Purchase Confirmed",
             message=f"Your purchase of the {purchase.package.name} license for {purchase.template.name} has been confirmed.",
+            metadata={"purchase_id": str(purchase.id)}
+        )
+        log_action(
+            actor=request.user,
+            action='payment_completed',
+            resource=purchase, organization=purchase.organization,
+            message=f"Payment confirmed for {purchase.package.name}",
+            request=request,
             metadata={"purchase_id": str(purchase.id)}
         )
         messages.success(request, 'Purchase confirmed!')
