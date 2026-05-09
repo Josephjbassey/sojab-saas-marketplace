@@ -15,7 +15,13 @@ class CustomizationRequest(BaseModel):
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customization_requests')
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.SET_NULL, null=True, blank=True, related_name='customization_requests')
+    organization = models.ForeignKey(
+        'organizations.Organization',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='customization_requests'
+    )
     template = models.ForeignKey(SaaSTemplate, on_delete=models.CASCADE, related_name='customization_requests')
     purchase = models.ForeignKey(TemplatePurchase, on_delete=models.SET_NULL, null=True, blank=True, related_name='customization_requests')
     

@@ -10,7 +10,6 @@ A production-ready SaaS template marketplace MVP.
 - Client dashboard and manual deployment tracking.
 
 ## Documentation
-- [Organizations and Workspaces](docs/organizations.md)
 
 For detailed information on the architecture, development, and roadmap, please refer to the following documentation:
 
