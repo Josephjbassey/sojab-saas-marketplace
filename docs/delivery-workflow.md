@@ -18,3 +18,11 @@ The process of delivering a SaaS template from the marketplace to the customer.
 ## Update Policy
 
 Purchasers are entitled to updates within the same major version of the template for a period specified in their license.
+
+## Entitlement and License Issuance
+
+As part of the delivery workflow, the system performs the following steps:
+1. Validates the `TemplatePurchase`.
+2. Calls `issue_license_for_purchase()` to generate a secure license key.
+3. Associates the license with the user and their organization (if applicable).
+4. Includes the license key in the delivery artifacts or project configuration.
