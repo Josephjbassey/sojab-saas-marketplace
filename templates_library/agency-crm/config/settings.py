@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,8 +10,11 @@ env = environ.Env(
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-SECRET_KEY = env('SECRET_KEY', default='unsafe-secret-key')
+SECRET_KEY = env('SECRET_KEY', default='')
 DEBUG = env('DEBUG')
+
+if not DEBUG and not SECRET_KEY:
+    raise ImproperlyConfigured('SECRET_KEY must be set in environment when DEBUG=False')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 

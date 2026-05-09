@@ -1,5 +1,7 @@
 import os
 import django
+import secrets
+import sys
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
@@ -15,47 +17,76 @@ from datetime import date, timedelta
 
 def seed():
     # Admin
-    admin, _ = User.objects.get_or_create(username='admin', is_staff=True, is_superuser=True)
-    admin.set_password('password')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    is_generated = False
+    if not admin_password:
+        admin_password = secrets.token_urlsafe(16)
+        is_generated = True
+
+    admin, created = User.objects.get_or_create(
+        username='admin',
+        defaults={'is_staff': True, 'is_superuser': True}
+    )
+    admin.set_password(admin_password)
     admin.save()
 
+    if is_generated:
+        print(f"Generated admin password: {admin_password}")
+    else:
+        print("Admin password set from environment.")
+
     # Org
-    org, _ = Organization.objects.get_or_create(name='Titan Agency', slug='titan-agency')
-    Membership.objects.get_or_create(user=admin, organization=org, role='owner')
+    org, _ = Organization.objects.get_or_create(
+        slug='titan-agency',
+        defaults={'name': 'Titan Agency'}
+    )
+
+    # Membership
+    Membership.objects.get_or_create(
+        user=admin,
+        organization=org,
+        defaults={'role': 'owner'}
+    )
 
     # Client
     client, _ = Client.objects.get_or_create(
+        email='contact@acme.com',
         organization=org,
-        name='Acme Corp',
-        email='contact@acme.com'
+        defaults={'name': 'Acme Corp'}
     )
 
     # Lead
     Lead.objects.get_or_create(
         organization=org,
-        client=client,
         title='Website Redesign',
-        value=Decimal('5000.00'),
-        status='qualified'
+        defaults={
+            'client': client,
+            'value': Decimal('5000.00'),
+            'status': 'qualified'
+        }
     )
 
     # Project
     project, _ = Project.objects.get_or_create(
         organization=org,
-        client=client,
         name='Q2 Marketing Campaign',
-        status='active'
+        defaults={
+            'client': client,
+            'status': 'active'
+        }
     )
 
     # Invoice
     Invoice.objects.get_or_create(
-        organization=org,
-        client=client,
-        project=project,
         number='INV-2025-001',
-        amount=Decimal('1200.00'),
-        due_date=date.today() + timedelta(days=14),
-        status='sent'
+        organization=org,
+        defaults={
+            'client': client,
+            'project': project,
+            'amount': Decimal('1200.00'),
+            'due_date': date.today() + timedelta(days=14),
+            'status': 'sent'
+        }
     )
 
     print("Agency CRM seed data applied successfully.")
