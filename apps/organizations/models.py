@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from django.utils.text import slugify
 from apps.common.models import BaseModel
 
 class Organization(BaseModel):
@@ -14,11 +13,6 @@ class Organization(BaseModel):
         blank=True
     )
     is_active = models.BooleanField(default=True)
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -49,11 +43,16 @@ class Membership(BaseModel):
     role = models.CharField(
         max_length=20,
         choices=ROLE_CHOICES,
-        default=ROLE_MEMBER
+        default='member'
     )
 
     class Meta:
-        unique_together = ('user', 'organization')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'organization'],
+                name='unique_membership'
+            )
+        ]
 
     def __str__(self):
         return f"{self.user.email} in {self.organization.name} ({self.role})"
