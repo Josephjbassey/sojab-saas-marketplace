@@ -20,6 +20,8 @@ class Project(BaseModel):
 
     def clean(self):
         super().clean()
+        if not self.client:
+            return
         if self.client.organization != self.organization:
             raise ValidationError({
                 'client': f"Client '{self.client.name}' must belong to the same organization as the project."

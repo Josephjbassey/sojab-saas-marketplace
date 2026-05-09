@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import environ
 from django.core.exceptions import ImproperlyConfigured
+from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,11 +11,14 @@ env = environ.Env(
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-SECRET_KEY = env('SECRET_KEY', default='')
+SECRET_KEY = env('SECRET_KEY', default=None)
 DEBUG = env('DEBUG')
 
-if not DEBUG and not SECRET_KEY:
-    raise ImproperlyConfigured('SECRET_KEY must be set in environment when DEBUG=False')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = get_random_secret_key()
+    else:
+        raise ImproperlyConfigured('SECRET_KEY must be set in environment when DEBUG=False')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 

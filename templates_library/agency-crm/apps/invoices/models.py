@@ -24,10 +24,11 @@ class Invoice(BaseModel):
 
     def clean(self):
         super().clean()
-        if self.client.organization != self.organization:
-            raise ValidationError({
-                'client': f"Client '{self.client.name}' must belong to the same organization as the invoice."
-            })
+        if self.client:
+            if self.client.organization != self.organization:
+                raise ValidationError({
+                    'client': f"Client '{self.client.name}' must belong to the same organization as the invoice."
+                })
         if self.project:
             if self.project.organization != self.organization:
                 raise ValidationError({
@@ -39,7 +40,9 @@ class Invoice(BaseModel):
                 })
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        validate = kwargs.pop('validate', True)
+        if validate:
+            self.full_clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
