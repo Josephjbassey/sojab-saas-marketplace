@@ -1,27 +1,36 @@
 # Billing Architecture
 
-The platform uses an abstraction layer for billing to support multiple payment providers.
+The platform uses an abstraction layer for billing to support multiple payment providers. This allows us to maintain a consistent interface while swapping out the underlying gateway (e.g., Stripe, Paystack).
 
-## Abstraction Layer
+## Provider Interface
 
-The `apps.billing` module defines a standard interface for:
-- Creating checkout sessions.
-- Handling webhooks.
-- Managing subscriptions vs. one-time purchases.
+All payment providers must implement the `BasePaymentProvider` interface defined in `apps/billing/services.py`:
 
-## Supported Providers
+- `create_payment(purchase, amount)`: Initiates the payment process.
+- `confirm_payment(purchase)`: Finalizes a pending payment.
+- `refund_purchase(purchase)`: Handles refund requests.
 
-- **Stub/Dummy (Current MVP):** Used for development and testing. This is the only currently active provider.
+## Models
 
-## Planned Providers (Future)
+### PaymentTransaction
+Logs every attempt at a payment, including the provider used, external transaction ID, and final status. This provides an audit trail separate from the high-level `TemplatePurchase` state.
 
-- **Stripe:** Planned for international payments.
-- **Paystack:** Planned for regional markets.
+### WebhookEvent
+A landing table for raw gateway notifications. In Phase 3, this is a placeholder to ensure the architecture is ready for asynchronous payment confirmations.
 
-## Transaction Flow
+## Current Provider
 
-1. User selects a template package.
-2. `purchases.views.checkout` initiates the billing session.
-3. Upon success, a `TemplatePurchase` is recorded.
-4. The `licensing` app generates a license key.
-5. The `deployments` app creates a delivery task.
+- **Dummy (Active):** Simulates successful and failed transactions without external API calls. Enabled via `DUMMY_PAYMENTS_ENABLED` in settings.
+
+## Roadmap
+
+- **Phase 4:** Add real `PaystackProvider` with webhook support.
+- **Phase 5:** Add `StripeProvider`.
+- **Phase 6:** Implement Subscription-specific logic (plans, intervals).
+
+## Webhook Integration Strategy
+
+Future providers will push events to a unified endpoint (`/billing/webhooks/<provider>/`). The logic will:
+1. Validate the signature.
+2. Store the raw payload in `WebhookEvent`.
+3. Dispatch a background task to update the relevant `TemplatePurchase` and `PaymentTransaction`.
