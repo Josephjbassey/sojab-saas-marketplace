@@ -46,6 +46,29 @@ class TestLicensingServices:
         assert license.user == purchase.user
         assert license.status == TemplateLicense.STATUS_ACTIVE
 
+    def test_issue_license_uses_package_license_type(self, user, saas_template):
+        from apps.purchases.models import TemplatePurchase
+        from apps.templates_catalog.models import TemplatePackage
+
+        package = TemplatePackage.objects.create(
+            template=saas_template,
+            name="Standard",
+            license_type=TemplateLicense.TYPE_COMMERCIAL,
+            price=100,
+        )
+        purchase = TemplatePurchase.objects.create(
+            user=user,
+            template=saas_template,
+            package=package,
+            amount_paid=package.price,
+            status='paid',
+            transaction_id='dummy_standard',
+        )
+
+        license = issue_license_for_purchase(purchase)
+        assert license.license_type == TemplateLicense.TYPE_COMMERCIAL
+        assert license.allowed_end_products == 1
+
     def test_validate_license_key(self, purchase):
         license = issue_license_for_purchase(purchase)
 

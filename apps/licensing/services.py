@@ -15,17 +15,8 @@ def issue_license_for_purchase(purchase):
     """
     Issues a template license for a completed purchase.
     """
-    # Mapping package types to license types if available
-    # For now, we use a simple mapping or default to personal
-    license_type = TemplateLicense.TYPE_PERSONAL
-    allowed_end_products = 1
-
-    package_name = purchase.package.name.lower()
-    if 'commercial' in package_name:
-        license_type = TemplateLicense.TYPE_COMMERCIAL
-    elif 'agency' in package_name:
-        license_type = TemplateLicense.TYPE_AGENCY
-        allowed_end_products = 10  # Example limit for agency
+    license_type = purchase.package.license_type or TemplateLicense.TYPE_PERSONAL
+    allowed_end_products = 10 if license_type == TemplateLicense.TYPE_AGENCY else 1
 
     license = TemplateLicense.objects.create(
         license_key=generate_license_key(),
