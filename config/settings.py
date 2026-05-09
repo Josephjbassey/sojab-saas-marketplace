@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'apps.cms',
     'apps.support',
     'apps.common',
+    'apps.files',
     'apps.health',
     'apps.files',
 ]

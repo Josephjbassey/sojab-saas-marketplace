@@ -6,20 +6,26 @@ from apps.common.models import BaseModel
 from apps.organizations.models import Organization
 
 def validate_file_size(value):
-    # Default limit: 50MB
-    filesize = value.size
-    limit = getattr(settings, 'MAX_UPLOAD_SIZE', 52428800)
-    if filesize > limit:
-        raise ValidationError(f"The maximum file size is {limit/1024/1024}MB")
+    # Default limit 50MB
+    limit = 50 * 1024 * 1024
+    if value.size > limit:
+        raise ValidationError('File too large. Size should not exceed 50 MiB.')
 
 class ManagedFile(BaseModel):
+    PURPOSE_TEMPLATE_SCREENSHOT = 'template_screenshot'
+    PURPOSE_CLIENT_BRAND_ASSET = 'client_brand_asset'
+    PURPOSE_DELIVERY_ZIP = 'delivery_zip'
+    PURPOSE_INVOICE = 'invoice'
+    PURPOSE_DOCUMENT = 'document'
+    PURPOSE_OTHER = 'other'
+
     PURPOSE_CHOICES = [
-        ('template_screenshot', 'Template Screenshot'),
-        ('client_brand_asset', 'Client Brand Asset'),
-        ('delivery_zip', 'Delivery ZIP'),
-        ('invoice', 'Invoice'),
-        ('document', 'Document'),
-        ('other', 'Other'),
+        (PURPOSE_TEMPLATE_SCREENSHOT, 'Template Screenshot'),
+        (PURPOSE_CLIENT_BRAND_ASSET, 'Client Brand Asset'),
+        (PURPOSE_DELIVERY_ZIP, 'Delivery Zip'),
+        (PURPOSE_INVOICE, 'Invoice'),
+        (PURPOSE_DOCUMENT, 'Document'),
+        (PURPOSE_OTHER, 'Other'),
     ]
 
     owner = models.ForeignKey(
