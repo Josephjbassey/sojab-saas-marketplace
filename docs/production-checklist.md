@@ -6,9 +6,13 @@ Steps to ensure the platform is ready for production deployment.
 
 - [ ] Set `DEBUG=False`.
 - [ ] Generate a secure `SECRET_KEY`.
-- [ ] Configure `ALLOWED_HOSTS`.
-- [ ] Enable HTTPS/SSL.
+- [ ] Configure `ALLOWED_HOSTS` (Do not use wildcard `*`).
+- [ ] Enable HTTPS/SSL (`SECURE_SSL_REDIRECT=True`).
+- [ ] Enable HSTS (`SECURE_HSTS_SECONDS=31536000` or similar).
+- [ ] Configure `CSRF_TRUSTED_ORIGINS`.
 - [ ] Set up Sentry for error tracking.
+- [ ] **Rate Limiting**: Install and configure `django-ratelimit` or `django-axes` to protect auth endpoints (login, register).
+- [ ] **Webhook Security**: Ensure all webhook adapters (Paystack, Stripe) implement HMAC signature verification using the provider's secret.
 
 ## Database & Services
 
@@ -18,9 +22,9 @@ Steps to ensure the platform is ready for production deployment.
 
 ## Payments & Licensing
 
-- [ ] Switch billing to Live Mode.
-- [ ] Verify webhook endpoints.
-- [ ] Audit license generation logic.
+- [ ] Switch billing to Live Mode (Real API Keys).
+- [ ] Verify webhook endpoints are reachable by providers.
+- [ ] Audit license generation logic for high-volume scenarios.
 
 ## Monitoring & Health
 

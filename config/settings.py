@@ -11,10 +11,14 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='unsafe-secret-key')
 DEBUG = env('DEBUG')
+
 DEFAULT_INSECURE_SECRET_KEYS = {'unsafe-secret-key', 'dev-secret-key-change-in-production'}
 if not DEBUG and SECRET_KEY in DEFAULT_INSECURE_SECRET_KEYS:
     raise RuntimeError('Set a non-default SECRET_KEY in environment when DEBUG=False')
+
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+if not DEBUG and '*' in ALLOWED_HOSTS:
+    raise RuntimeError('ALLOWED_HOSTS cannot be wildcard in production (DEBUG=False)')
 
 INSTALLED_APPS = [
     'apps.accounts',
@@ -139,3 +143,16 @@ DUMMY_PAYMENTS_ENABLED = env.bool('DUMMY_PAYMENTS_ENABLED', default=True)
 CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=not DEBUG)
 SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=not DEBUG)
 SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=False)
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+
+# HSTS
+SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=0)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=False)
+SECURE_HSTS_PRELOAD = env.bool('SECURE_HSTS_PRELOAD', default=False)
+
+# Referrer and Frames
+SECURE_REFERRER_POLICY = env('SECURE_REFERRER_POLICY', default='same-origin')
+X_FRAME_OPTIONS = env('X_FRAME_OPTIONS', default='DENY')
+
+# Payload limits
+DATA_UPLOAD_MAX_MEMORY_SIZE = env.int('DATA_UPLOAD_MAX_MEMORY_SIZE', default=2621440) # 2.5MB
