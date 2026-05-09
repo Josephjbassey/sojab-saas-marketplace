@@ -23,3 +23,17 @@ class TestAuditLog:
         log = log_action(user, AuditLog.ACTION_UPDATE, request=request)
         assert log.ip_address == '1.2.3.4'
         assert log.user_agent == 'TestAgent'
+
+    def test_log_action_ip_priority(self, user, rf):
+        """Verify HTTP_X_FORWARDED_FOR is preferred over REMOTE_ADDR."""
+        request = rf.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '5.6.7.8, 9.10.11.12'
+        request.META['REMOTE_ADDR'] = '1.2.3.4'
+
+        log = log_action(user, AuditLog.ACTION_UPDATE, request=request)
+        assert log.ip_address == '5.6.7.8'
+
+    def test_log_action_validation(self, user):
+        """Verify action is required."""
+        with pytest.raises(ValueError, match="Action is required"):
+            log_action(user, "")

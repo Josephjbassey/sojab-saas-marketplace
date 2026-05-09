@@ -31,25 +31,27 @@ def notify_user(user, title, message, organization=None, action_url='', metadata
 def notify_organization_admins(organization, title, message, action_url='', metadata=None):
     """
     Sends a notification to all admins and owners of an organization.
+    Uses bulk_create for efficiency.
     """
     admin_memberships = Membership.objects.filter(
         organization=organization,
         role__in=[Membership.ROLE_OWNER, Membership.ROLE_ADMIN]
     ).select_related('user')
 
-    notifications = []
-    for membership in admin_memberships:
-        notifications.append(
-            create_notification(
-                recipient=membership.user,
-                title=title,
-                message=message,
-                organization=organization,
-                action_url=action_url,
-                metadata=metadata
-            )
+    notifications_to_create = [
+        Notification(
+            recipient=membership.user,
+            organization=organization,
+            notification_type=Notification.TYPE_IN_APP,
+            title=title,
+            message=message,
+            action_url=action_url,
+            metadata=metadata
         )
-    return notifications
+        for membership in admin_memberships
+    ]
+
+    return Notification.objects.bulk_create(notifications_to_create)
 
 def get_unread_count(user):
     """

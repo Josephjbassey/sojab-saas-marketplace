@@ -36,8 +36,9 @@ def checkout(request, package_id):
             status='pending',
         )
 
-        # Link organization if user has one
-        user_orgs = request.user.memberships.all()
+        # Deterministic organization selection (e.g. by creation date)
+        # In a real app, this should be selected by the user in the form.
+        user_orgs = request.user.memberships.order_by('created_at')
         if user_orgs.exists():
             purchase.organization = user_orgs.first().organization
             purchase.save(update_fields=['organization'])

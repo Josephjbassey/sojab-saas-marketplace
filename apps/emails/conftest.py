@@ -1,17 +1,17 @@
 import pytest
 from apps.accounts.models import User
+from apps.organizations.models import Organization, Membership
 from apps.templates_catalog.models import TemplateCategory, SaaSTemplate
 
 @pytest.fixture
 def user(db):
-    user = User.objects.filter(username='testuser_notif').first()
-    if not user:
-        user = User.objects.create_user(
-            username='testuser_notif',
-            email='test@example.com',
-            password='testpass123',
-        )
-    return user
+    import uuid
+    username = f'testuser_{uuid.uuid4().hex[:8]}'
+    return User.objects.create_user(
+        username=username,
+        email=f'{username}@example.com',
+        password='testpass123',
+    )
 
 @pytest.fixture
 def category(db):
@@ -23,7 +23,6 @@ def saas_template(db, category):
 
 @pytest.fixture
 def organization(db, user):
-    from apps.organizations.models import Organization, Membership
     org = Organization.objects.create(name="Test Org", slug="test-org", owner=user)
     Membership.objects.get_or_create(user=user, organization=org, role=Membership.ROLE_OWNER)
     return org

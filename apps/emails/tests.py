@@ -20,3 +20,15 @@ class TestEmailServices:
         )
         assert len(mail.outbox) == 1
         assert "T1" in mail.outbox[0].body
+
+    def test_build_email_context(self, user):
+        """Verify standard context and merging of custom values."""
+        context = build_email_context(user, custom_key='custom_value')
+        assert context['user'] == user
+        assert 'site_name' in context
+        assert context['custom_key'] == 'custom_value'
+
+    def test_send_template_email_invalid_name(self, user):
+        """Verify template name validation."""
+        with pytest.raises(ValueError, match="Invalid template name"):
+            send_template_email("Subject", [user.email], "../illegal")
