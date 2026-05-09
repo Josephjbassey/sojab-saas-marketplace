@@ -1,15 +1,30 @@
 # Project Generator Roadmap
 
-The future of the marketplace involves an automated project generator.
+The project generator facilitates the configuration and delivery of SaaS template instances to clients.
 
-## Proposed Architecture
+## Implementation Status: Phase 10 (Foundation)
+- [x] **Core Models**: `GeneratedProject` for lifecycle tracking and `ProjectConfiguration` for settings.
+- [x] **Admin Workflow**: Manual management of project statuses and delivery URLs/files in Django Admin.
+- [x] **Service Stubs**: Basic helpers for creating projects and marking them delivered.
 
-- **ProjectConfiguration Model:** Stores user-selected options (slug, brand name, features).
-- **GeneratedProject Model:** Tracks the lifecycle of a specific generation task.
-- **Celery Worker:** Handles the heavy lifting of copying template files and applying transformations.
+## Current Manual Workflow (Admin)
+1. **Creation**: Admin creates a `GeneratedProject` from a successful `TemplatePurchase`.
+2. **Configuration**: Admin (or later, the user) fills in `ProjectConfiguration` (brand name, colors, etc.).
+3. **Processing**: Admin manually prepares the project (code generation, repo setup).
+4. **Delivery**: Admin updates `github_repo_url`, `deployment_url`, or uploads a `zip_file`.
+5. **Completion**: Admin sets status to `Delivered`.
 
-## Automation Phases
+## Future Automation Roadmap
 
-1. **Phase 1: Zip Export.** User configures their project, and the system generates a downloadable .zip file.
-2. **Phase 2: GitHub Provisioning.** Automated creation of a private repository in the user's GitHub account.
-3. **Phase 3: One-Click Deploy.** Integration with platforms like Railway, Render, or DigitalOcean for immediate deployment.
+### 1. Celery Automation (Next Phase)
+- Move generation tasks to background workers.
+- Add status updates (`Queued`, `Preparing`) via Celery task signals.
+
+### 2. Actual Code Generation
+- Implement a template engine to transform the base boilerplate based on `ProjectConfiguration`.
+- Dynamic replacement of brand names, primary colors, and feature flags.
+
+### 3. Automated Delivery
+- **GitHub Provisioning**: Automated creation of private repositories via GitHub API.
+- **Zip Export**: Dynamic creation and storage of project archives using `apps/files`.
+- **One-Click Deploy**: Webhook-based integration with Vercel/Railway for instant provisioning.
