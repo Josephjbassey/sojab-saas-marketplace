@@ -12,6 +12,7 @@ class TemplatePurchase(BaseModel):
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='purchases')
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.SET_NULL, null=True, blank=True, related_name='purchases')
     template = models.ForeignKey(SaaSTemplate, on_delete=models.PROTECT, related_name='purchases')
     package = models.ForeignKey(TemplatePackage, on_delete=models.PROTECT, related_name='purchases')
     
