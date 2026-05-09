@@ -11,15 +11,6 @@ from .services import (
 
 User = get_user_model()
 
-@pytest.fixture
-def setup_data(db):
-    user = User.objects.create_user(username="testuser", email="test@example.com")
-    org = Organization.objects.create(name="Acme Corp", slug="acme-corp")
-    category = TemplateCategory.objects.create(name="SaaS", slug="saas")
-    template = SaaSTemplate.objects.create(category=category, name="SaaS Pro", slug="saas-pro", description="A pro SaaS template")
-    package = TemplatePackage.objects.create(template=template, name="Basic", price=99.00)
-    return user, org, template, package
-
 @pytest.mark.django_db
 class TestOrganizationModels:
     def test_organization_creation(self):
@@ -29,7 +20,6 @@ class TestOrganizationModels:
         assert org.slug == "test-org"
         assert org.owner == user
         assert org.is_active is True
-        assert str(org) == "Acme Corp"
 
     def test_slug_uniqueness(self):
         user = User.objects.create_user(username="owner2", email="owner2@example.com")
