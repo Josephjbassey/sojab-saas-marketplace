@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'apps.cms',
     'apps.support',
     'apps.common',
+    'apps.health',
 ]
 
 MIDDLEWARE = [
