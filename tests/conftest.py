@@ -1,5 +1,6 @@
 import pytest
 from apps.accounts.models import User
+from apps.organizations.models import Organization, Membership
 from apps.templates_catalog.models import TemplateCategory, SaaSTemplate, TemplatePackage, TemplateFeature
 from apps.purchases.models import TemplatePurchase
 from apps.support.models import CustomizationRequest
@@ -8,9 +9,12 @@ from apps.deployments.models import ClientProject
 
 @pytest.fixture
 def user(db):
+    # Always create a fresh user instance
+    import uuid
+    username = f'testuser_{uuid.uuid4().hex[:8]}'
     return User.objects.create_user(
-        username='testuser',
-        email='test@example.com',
+        username=username,
+        email=f'{username}@example.com',
         password='testpass123',
         first_name='Test',
         last_name='User',
@@ -19,33 +23,51 @@ def user(db):
 
 @pytest.fixture
 def admin_user(db):
+    import uuid
+    username = f'admin_{uuid.uuid4().hex[:8]}'
     return User.objects.create_superuser(
-        username='admin',
-        email='admin@example.com',
+        username=username,
+        email=f'{username}@example.com',
         password='adminpass123',
     )
 
 
 @pytest.fixture
 def category(db):
+    import uuid
+    name = f'Category {uuid.uuid4().hex[:4]}'
     return TemplateCategory.objects.create(
-        name='SaaS Boilerplates',
-        slug='saas-boilerplates',
-        description='Ready-made SaaS starter kits',
+        name=name,
+        slug=name.lower().replace(' ', '-'),
+        description='Description',
     )
 
 
 @pytest.fixture
 def saas_template(db, category):
+    import uuid
+    name = f'Template {uuid.uuid4().hex[:4]}'
     return SaaSTemplate.objects.create(
         category=category,
-        name='Titan Boilerplate',
-        slug='titan-boilerplate',
-        description='A robust boilerplate for SaaS apps.',
-        short_description='Build SaaS fast.',
+        name=name,
+        slug=name.lower().replace(' ', '-'),
+        description='Description',
+        short_description='Short description',
         is_active=True,
-        is_featured=True,
     )
+
+
+@pytest.fixture
+def organization(db, user):
+    import uuid
+    name = f'Org {uuid.uuid4().hex[:4]}'
+    org = Organization.objects.create(
+        name=name,
+        slug=name.lower().replace(' ', '-'),
+        owner=user
+    )
+    Membership.objects.create(user=user, organization=org, role=Membership.ROLE_OWNER)
+    return org
 
 
 @pytest.fixture
@@ -106,5 +128,5 @@ def client_project(db, user, saas_template, purchase):
 
 @pytest.fixture
 def authenticated_client(client, user):
-    client.login(username='testuser', password='testpass123')
+    client.force_login(user)
     return client

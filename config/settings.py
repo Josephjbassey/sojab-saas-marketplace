@@ -54,7 +54,9 @@ INSTALLED_APPS = [
     'apps.common',
     'apps.files',
     'apps.health',
-    'apps.files',
+    'apps.notifications',
+    'apps.audit',
+    'apps.emails',
 ]
 
 MIDDLEWARE = [

@@ -4,7 +4,10 @@ from django.contrib import messages
 from apps.templates_catalog.models import TemplatePackage
 from .models import TemplatePurchase
 from apps.billing.services import get_payment_service
-
+from apps.notifications.services import notify_user
+from apps.audit.services import log_action
+from apps.audit.models import AuditLog
+from apps.emails.services import send_template_email, build_email_context
 
 @login_required
 def checkout(request, package_id):
@@ -33,6 +36,13 @@ def checkout(request, package_id):
             status='pending',
         )
 
+        # Deterministic organization selection (e.g. by creation date)
+        # In a real app, this should be selected by the user in the form.
+        user_orgs = request.user.memberships.order_by('created_at')
+        if user_orgs.exists():
+            purchase.organization = user_orgs.first().organization
+            purchase.save(update_fields=['organization'])
+
         # Process dummy payment
         payment_service = get_payment_service()
         result = payment_service.create_payment(purchase, package.price)
@@ -40,11 +50,41 @@ def checkout(request, package_id):
         if result.success:
             confirmation = payment_service.confirm_payment(purchase)
             if confirmation.success:
+                # Notifications & Audit & Email
+                notify_user(
+                    request.user,
+                    "Purchase Successful",
+                    f"You have successfully purchased {template.name}.",
+                    organization=purchase.organization
+                )
+                log_action(
+                    request.user,
+                    AuditLog.ACTION_PAYMENT_COMPLETED,
+                    resource=purchase,
+                    organization=purchase.organization,
+                    request=request,
+                    message=f"Purchased {template.name}"
+                )
+                send_template_email(
+                    "Your Purchase Confirmation",
+                    [request.user.email],
+                    "purchase_confirmation",
+                    build_email_context(request.user, purchase=purchase)
+                )
+
                 messages.success(request, 'Purchase completed successfully!')
                 return redirect('purchases:success', purchase_id=purchase.id)
 
         # Payment failed
         payment_service.mark_purchase_failed(purchase, 'Payment processing failed')
+        log_action(
+            request.user,
+            AuditLog.ACTION_PAYMENT_FAILED,
+            resource=purchase,
+            organization=purchase.organization,
+            request=request,
+            message=f"Purchase failed for {template.name}"
+        )
         messages.error(request, 'Payment failed. Please try again.')
         return redirect('purchases:checkout', package_id=package_id)
 
@@ -53,7 +93,6 @@ def checkout(request, package_id):
         'template': template,
         'existing_pending': existing,
     })
-
 
 @login_required
 def confirm_purchase(request, purchase_id):
@@ -71,12 +110,33 @@ def confirm_purchase(request, purchase_id):
     result = payment_service.confirm_payment(purchase)
 
     if result.success:
+        # Notifications & Audit & Email
+        notify_user(
+            request.user,
+            "Purchase Confirmed",
+            f"Your purchase for {purchase.template.name} has been confirmed.",
+            organization=purchase.organization
+        )
+        log_action(
+            request.user,
+            AuditLog.ACTION_PAYMENT_COMPLETED,
+            resource=purchase,
+            organization=purchase.organization,
+            request=request,
+            message=f"Purchase confirmed for {purchase.template.name}"
+        )
+        send_template_email(
+            "Your Purchase Confirmation",
+            [request.user.email],
+            "purchase_confirmation",
+            build_email_context(request.user, purchase=purchase)
+        )
+
         messages.success(request, 'Purchase confirmed!')
         return redirect('purchases:success', purchase_id=purchase.id)
 
     messages.error(request, 'Could not confirm payment.')
     return redirect('marketplace:dashboard')
-
 
 @login_required
 def purchase_success(request, purchase_id):
