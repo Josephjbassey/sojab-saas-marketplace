@@ -21,3 +21,10 @@ Steps to ensure the platform is ready for production deployment.
 - [ ] Switch billing to Live Mode.
 - [ ] Verify webhook endpoints.
 - [ ] Audit license generation logic.
+
+## Monitoring & Health
+
+- [ ] Configure load balancer or orchestrator to use health endpoints:
+  - `/health/live/`: Liveness probe (app running).
+  - `/health/ready/`: Readiness probe (DB/Redis connectivity).
+  - `/health/`: Detailed status.

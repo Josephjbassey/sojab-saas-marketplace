@@ -4,7 +4,6 @@ from django.contrib import messages
 from apps.templates_catalog.models import TemplatePackage
 from .models import TemplatePurchase
 from apps.billing.services import get_payment_service
-from apps.notifications.services import notify_user
 
 
 @login_required
@@ -41,12 +40,6 @@ def checkout(request, package_id):
         if result.success:
             confirmation = payment_service.confirm_payment(purchase)
             if confirmation.success:
-                notify_user(
-                    user=request.user,
-                    title="Purchase Successful",
-                    message=f"Thank you for purchasing the {package.name} license for {template.name}.",
-                    metadata={"purchase_id": str(purchase.id)}
-                )
                 messages.success(request, 'Purchase completed successfully!')
                 return redirect('purchases:success', purchase_id=purchase.id)
 
@@ -78,12 +71,6 @@ def confirm_purchase(request, purchase_id):
     result = payment_service.confirm_payment(purchase)
 
     if result.success:
-        notify_user(
-            user=request.user,
-            title="Purchase Confirmed",
-            message=f"Your purchase of the {purchase.package.name} license for {purchase.template.name} has been confirmed.",
-            metadata={"purchase_id": str(purchase.id)}
-        )
         messages.success(request, 'Purchase confirmed!')
         return redirect('purchases:success', purchase_id=purchase.id)
 
