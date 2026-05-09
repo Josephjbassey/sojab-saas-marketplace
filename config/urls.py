@@ -14,6 +14,7 @@ urlpatterns = [
 
     path('templates/', include('apps.templates_catalog.urls', namespace='templates_catalog')),
     path('purchases/', include('apps.purchases.urls', namespace='purchases')),
+    path('billing/', include('apps.billing.urls', namespace='billing')),
     path('support/', include('apps.support.urls', namespace='support')),
     path('health/', include('apps.health.urls', namespace='health')),
     path('auth/', include('apps.accounts.urls', namespace='accounts')),

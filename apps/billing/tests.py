@@ -1,73 +1,115 @@
 import pytest
-from decimal import Decimal
-from django.contrib.auth import get_user_model
-from apps.templates_catalog.models import SaaSTemplate, TemplateCategory
-from apps.purchases.models import TemplatePurchase
-from .models import PaymentTransaction
-from .services import get_payment_service
-
-User = get_user_model()
-
-@pytest.fixture
-def purchase_setup(db):
-    user = User.objects.create_user(username="buyer", email="buyer@example.com")
-    category = TemplateCategory.objects.create(name="Web")
-    template = SaaSTemplate.objects.create(name="Template", category=category)
-    package = template.packages.create(name="Standard", price=Decimal('100.00'), license_type='commercial')
-    purchase = TemplatePurchase.objects.create(
-        user=user,
-        template=template,
-        package=package,
-        amount_paid=package.price,
-        status='pending'
-    )
-    return purchase
+import json
+import hmac
+import hashlib
+from unittest.mock import patch, MagicMock
+from django.conf import settings
+from django.urls import reverse
+from .services import PaystackPaymentProvider, get_payment_service
+from .models import PaymentTransaction, WebhookEvent
 
 @pytest.mark.django_db
-class TestBillingArchitecture:
-    def test_dummy_provider_creates_transaction(self, purchase_setup):
-        service = get_payment_service()
-        result = service.create_payment(purchase_setup, purchase_setup.amount_paid)
+class TestPaystackProvider:
+    @patch('requests.post')
+    def test_create_payment_success(self, mock_post, purchase):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            'status': True,
+            'data': {
+                'reference': 'test_ref_123',
+                'authorization_url': 'https://checkout.paystack.com/123'
+            }
+        }
+        mock_post.return_value = mock_response
 
-        assert result.success
-        assert purchase_setup.transaction_id.startswith('dummy_')
+        provider = PaystackPaymentProvider()
+        result = provider.create_payment(purchase, purchase.amount_paid)
 
-        tx = PaymentTransaction.objects.get(purchase=purchase_setup)
-        assert tx.status == 'pending'
-        assert tx.amount == purchase_setup.amount_paid
-        assert tx.provider == 'dummy'
+        assert result.success is True
+        assert result.transaction_id == 'test_ref_123'
+        assert result.authorization_url == 'https://checkout.paystack.com/123'
+        assert PaymentTransaction.objects.filter(external_id='test_ref_123').exists()
 
-    def test_confirm_payment_updates_status(self, purchase_setup):
-        service = get_payment_service()
-        service.create_payment(purchase_setup, purchase_setup.amount_paid)
-        service.confirm_payment(purchase_setup)
+    @patch('requests.get')
+    def test_verify_payment_success(self, mock_get, purchase):
+        purchase.transaction_id = 'test_ref_123'
+        purchase.save()
 
-        purchase_setup.refresh_from_db()
-        assert purchase_setup.status == 'paid'
+        PaymentTransaction.objects.create(
+            purchase=purchase,
+            provider='paystack',
+            external_id='test_ref_123',
+            amount=purchase.amount_paid,
+            status='pending'
+        )
 
-        tx = PaymentTransaction.objects.get(purchase=purchase_setup)
-        assert tx.status == 'paid'
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            'status': True,
+            'data': {
+                'status': 'success',
+                'reference': 'test_ref_123'
+            }
+        }
+        mock_get.return_value = mock_response
 
-    def test_mark_purchase_failed(self, purchase_setup):
-        service = get_payment_service()
-        service.create_payment(purchase_setup, purchase_setup.amount_paid)
-        service.mark_purchase_failed(purchase_setup, "Card declined")
+        provider = PaystackPaymentProvider()
+        result = provider.confirm_payment(purchase)
 
-        purchase_setup.refresh_from_db()
-        assert purchase_setup.status == 'failed'
-        assert purchase_setup.notes == "Card declined"
+        assert result.success is True
+        purchase.refresh_from_db()
+        assert purchase.status == 'paid'
 
-        tx = PaymentTransaction.objects.get(purchase=purchase_setup)
-        assert tx.status == 'failed'
+    def test_webhook_signature_verification(self):
+        provider = PaystackPaymentProvider()
+        provider.secret_key = 'test_secret'
 
-    def test_refund_simulation(self, purchase_setup):
-        service = get_payment_service()
-        service.create_payment(purchase_setup, purchase_setup.amount_paid)
-        service.confirm_payment(purchase_setup)
-        service.refund_purchase(purchase_setup)
+        payload = {'event': 'charge.success', 'data': {'reference': 'ref123'}}
+        payload_json = json.dumps(payload, separators=(',', ':'))
 
-        purchase_setup.refresh_from_db()
-        assert purchase_setup.status == 'refunded'
+        signature = hmac.new(
+            b'test_secret',
+            payload_json.encode('utf-8'),
+            hashlib.sha512
+        ).hexdigest()
 
-        tx = PaymentTransaction.objects.get(purchase=purchase_setup)
-        assert tx.status == 'refunded'
+        assert provider._verify_signature(payload, signature) is True
+        assert provider._verify_signature(payload, 'wrong_sig') is False
+
+@pytest.mark.django_db
+class TestBillingViews:
+    def test_paystack_webhook_endpoint(self, client, purchase):
+        purchase.transaction_id = 'ref123'
+        purchase.save()
+
+        tx = PaymentTransaction.objects.create(
+            purchase=purchase,
+            provider='paystack',
+            external_id='ref123',
+            amount=purchase.amount_paid,
+            status='pending'
+        )
+
+        payload = {'event': 'charge.success', 'data': {'reference': 'ref123'}}
+        payload_json = json.dumps(payload, separators=(',', ':'))
+
+        # We need to mock the service to bypass signature check or use real one
+        with patch.object(PaystackPaymentProvider, '_verify_signature', return_value=True):
+            with patch('apps.billing.views.get_payment_service') as mock_get_service:
+                provider = PaystackPaymentProvider()
+                provider.secret_key = 'test'
+                mock_get_service.return_value = provider
+
+                response = client.post(
+                    reverse('billing:paystack_webhook'),
+                    data=payload_json,
+                    content_type='application/json',
+                    HTTP_X_PAYSTACK_SIGNATURE='valid'
+                )
+
+                assert response.status_code == 200
+                purchase.refresh_from_db()
+                assert purchase.status == 'paid'
+                assert WebhookEvent.objects.filter(event_type='charge.success').exists()
