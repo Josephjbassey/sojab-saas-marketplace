@@ -2,11 +2,11 @@
 
 init:
 	cp .env.example .env
-	docker compose up -d db redis
+	docker compose -f docker-compose.example.yml up -d db redis
 	# Run migrations and create superuser manually or via seed script
 
 dev:
-	docker compose up
+	docker compose -f docker-compose.example.yml up
 
 test:
 	pytest
