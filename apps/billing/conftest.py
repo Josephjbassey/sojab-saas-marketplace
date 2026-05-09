@@ -42,3 +42,10 @@ def purchase(db, user, saas_template, package):
         amount_paid=100.00,
         status='pending'
     )
+
+@pytest.fixture
+def organization(db, user):
+    from apps.organizations.models import Organization, Membership
+    org = Organization.objects.create(name='Test Org', slug='test-org', owner=user)
+    Membership.objects.create(user=user, organization=org, role=Membership.ROLE_OWNER)
+    return org

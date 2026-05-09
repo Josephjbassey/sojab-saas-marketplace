@@ -41,10 +41,6 @@ def checkout(request, package_id):
         if user_orgs.exists():
             purchase.organization = user_orgs.first().organization
             purchase.save(update_fields=['organization'])
-        elif user_orgs.count() > 1:
-            messages.error(request, 'Please select an organization to continue checkout.')
-            purchase.delete()
-            return redirect('purchases:checkout', package_id=package_id)
 
         # Process payment
         payment_service = get_payment_service()

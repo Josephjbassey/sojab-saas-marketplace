@@ -243,3 +243,57 @@ def get_payment_service() -> BasePaymentProvider:
     if provider_name == 'paystack':
         return PaystackPaymentProvider()
     return DummyPaymentProvider()
+
+def create_subscription_record(user, plan, organization=None, provider='', provider_subscription_id=''):
+    """
+    Initializes a subscription record.
+    """
+    from .models import Subscription
+    from django.utils import timezone
+    from datetime import timedelta
+
+    now = timezone.now()
+    # Default period of 30 days for new records (to be updated by provider)
+    period_end = now + timedelta(days=30)
+
+    return Subscription.objects.create(
+        user=user,
+        organization=organization,
+        plan=plan,
+        provider=provider,
+        provider_subscription_id=provider_subscription_id,
+        status=Subscription.STATUS_TRIALING,
+        current_period_start=now,
+        current_period_end=period_end
+    )
+
+def mark_subscription_active(subscription):
+    """
+    Sets a subscription to active.
+    """
+    from .models import Subscription
+    subscription.status = Subscription.STATUS_ACTIVE
+    subscription.save(update_fields=['status', 'updated_at'])
+    return subscription
+
+def cancel_subscription_record(subscription, at_period_end=True):
+    """
+    Marks a subscription as cancelled.
+    """
+    from .models import Subscription
+    if at_period_end:
+        subscription.cancel_at_period_end = True
+        subscription.save(update_fields=['cancel_at_period_end', 'updated_at'])
+    else:
+        subscription.status = Subscription.STATUS_CANCELLED
+        subscription.save(update_fields=['status', 'updated_at'])
+    return subscription
+
+def expire_subscription_record(subscription):
+    """
+    Marks a subscription as expired.
+    """
+    from .models import Subscription
+    subscription.status = Subscription.STATUS_EXPIRED
+    subscription.save(update_fields=['status', 'updated_at'])
+    return subscription
