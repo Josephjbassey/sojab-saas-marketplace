@@ -1,43 +1,34 @@
-import os
-from django.core.files.base import ContentFile
 from .models import ManagedFile
 
-def save_managed_file(file_obj, purpose=ManagedFile.PURPOSE_OTHER, owner=None, organization=None, content_type=None):
+def save_managed_file(file, purpose, user=None, organization=None):
     """
-    Saves a file object to the ManagedFile model.
+    Service helper to create a ManagedFile record and save the file.
     """
     managed_file = ManagedFile(
-        owner=owner,
-        organization=organization,
+        file=file,
         purpose=purpose,
-        content_type=content_type or getattr(file_obj, 'content_type', ''),
-        original_filename=getattr(file_obj, 'name', 'unknown'),
-        size=file_obj.size
+        owner=user,
+        organization=organization,
+        original_filename=file.name,
+        size=file.size,
+        content_type=getattr(file, 'content_type', '')
     )
-    managed_file.file.save(managed_file.original_filename, file_obj, save=False)
     managed_file.save()
     return managed_file
 
-def get_file_url(managed_file_id):
+def get_file_url(managed_file):
     """
-    Returns the URL of a managed file by its ID.
+    Returns the absolute or relative URL for the file.
+    In the future, this can be updated to return presigned URLs for R2/S3.
     """
-    try:
-        managed_file = ManagedFile.objects.get(id=managed_file_id)
-        return managed_file.file.url
-    except ManagedFile.DoesNotExist:
+    if not managed_file or not managed_file.file:
         return None
+    return managed_file.file.url
 
-def delete_managed_file(managed_file_id):
+def delete_managed_file(managed_file):
     """
-    Deletes a managed file record and its associated file from storage.
+    Deletes the ManagedFile record and the associated file from storage.
     """
-    try:
-        managed_file = ManagedFile.objects.get(id=managed_file_id)
-        if managed_file.file:
-            if os.path.isfile(managed_file.file.path):
-                os.remove(managed_file.file.path)
-        managed_file.delete()
-        return True
-    except ManagedFile.DoesNotExist:
-        return False
+    if managed_file.file:
+        managed_file.file.delete(save=False)
+    managed_file.delete()

@@ -18,8 +18,6 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 INSTALLED_APPS = [
     'apps.accounts',
-    'apps.notifications',
-    'apps.audit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,6 +54,7 @@ INSTALLED_APPS = [
     'apps.common',
     'apps.files',
     'apps.health',
+    'apps.files',
 ]
 
 MIDDLEWARE = [

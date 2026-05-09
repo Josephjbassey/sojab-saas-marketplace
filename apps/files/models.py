@@ -42,25 +42,32 @@ class ManagedFile(BaseModel):
         blank=True,
         related_name='managed_files'
     )
+
     file = models.FileField(
         upload_to='managed_files/%Y/%m/%d/',
         validators=[validate_file_size]
     )
+
     original_filename = models.CharField(max_length=255)
     content_type = models.CharField(max_length=100, blank=True)
-    size = models.BigIntegerField(help_text="Size in bytes")
+    size = models.BigIntegerField(help_text="File size in bytes")
+
     purpose = models.CharField(
         max_length=50,
         choices=PURPOSE_CHOICES,
-        default=PURPOSE_OTHER
+        default='other'
     )
 
-    def __str__(self):
-        return f"{self.original_filename} ({self.purpose})"
-
     def save(self, *args, **kwargs):
+        if not self.original_filename and self.file:
+            self.original_filename = self.file.name
         if not self.size and self.file:
             self.size = self.file.size
-        if not self.original_filename and self.file:
-            self.original_filename = os.path.basename(self.file.name)
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.original_filename} ({self.get_purpose_display()})"
+
+    class Meta:
+        verbose_name = "Managed File"
+        verbose_name_plural = "Managed Files"

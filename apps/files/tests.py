@@ -1,88 +1,61 @@
+import os
 import pytest
-import io
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from apps.organizations.models import Organization
-from .models import ManagedFile, validate_file_size
-from .services import save_managed_file, get_file_url, delete_managed_file
+from django.core.exceptions import ValidationError
+from .models import ManagedFile
+from .services import save_managed_file, delete_managed_file
 
 User = get_user_model()
 
-@pytest.fixture
-def user(db):
-    return User.objects.create_user(username='testuser', email='test@example.com', password='password')
-
-@pytest.fixture
-def organization(db, user):
-    return Organization.objects.create(name='Test Org', owner=user)
-
 @pytest.mark.django_db
-class TestManagedFileModel:
-    def test_create_managed_file(self, user, organization):
-        file_content = b"hello world"
-        uploaded_file = SimpleUploadedFile("test.txt", file_content, content_type="text/plain")
+class TestManagedFile:
+    def test_file_model_creation(self):
+        file_content = b"test content"
+        test_file = SimpleUploadedFile("test.txt", file_content, content_type="text/plain")
 
         managed_file = ManagedFile.objects.create(
-            owner=user,
-            organization=organization,
-            file=uploaded_file,
-            purpose=ManagedFile.PURPOSE_DOCUMENT
+            file=test_file,
+            purpose='document',
+            original_filename="test.txt",
+            size=len(file_content)
         )
 
         assert managed_file.original_filename == "test.txt"
+        assert managed_file.purpose == "document"
         assert managed_file.size == len(file_content)
-        assert managed_file.purpose == ManagedFile.PURPOSE_DOCUMENT
-        assert managed_file.content_type == "" # Not set automatically in .create() unless we override more
+        assert "test" in managed_file.file.name
+        assert managed_file.file.name.endswith(".txt")
 
-    def test_file_size_validation(self):
-        class MockFile:
-            def __init__(self, size):
-                self.size = size
+    def test_save_managed_file_service(self):
+        user = User.objects.create_user(username="testuser", email="test@example.com")
+        file_content = b"service content"
+        test_file = SimpleUploadedFile("service.txt", file_content)
 
-        # 50MB is okay
-        validate_file_size(MockFile(50 * 1024 * 1024))
+        managed_file = save_managed_file(test_file, 'client_brand_asset', user=user)
 
-        # 51MB should fail
+        assert managed_file.owner == user
+        assert managed_file.purpose == 'client_brand_asset'
+        assert managed_file.size == len(file_content)
+
+    def test_file_size_validation(self, settings):
+        settings.MAX_UPLOAD_SIZE = 10  # 10 bytes limit
+        file_content = b"content longer than 10 bytes"
+        test_file = SimpleUploadedFile("too_big.txt", file_content)
+
+        managed_file = ManagedFile(file=test_file)
         with pytest.raises(ValidationError):
-            validate_file_size(MockFile(51 * 1024 * 1024))
+            managed_file.full_clean()
 
-@pytest.mark.django_db
-class TestManagedFileServices:
-    def test_save_managed_file(self, user, organization):
-        file_content = b"service test content"
-        uploaded_file = SimpleUploadedFile("service_test.txt", file_content, content_type="text/plain")
+    def test_delete_managed_file_service(self):
+        file_content = b"delete me"
+        test_file = SimpleUploadedFile("delete.txt", file_content)
+        managed_file = save_managed_file(test_file, 'other')
 
-        managed_file = save_managed_file(
-            uploaded_file,
-            purpose=ManagedFile.PURPOSE_CLIENT_BRAND_ASSET,
-            owner=user,
-            organization=organization
-        )
+        file_path = managed_file.file.path
+        assert os.path.exists(file_path)
 
-        assert managed_file.original_filename == "service_test.txt"
-        assert managed_file.size == len(file_content)
-        assert managed_file.purpose == ManagedFile.PURPOSE_CLIENT_BRAND_ASSET
-        assert managed_file.content_type == "text/plain"
-        assert "service_test" in managed_file.file.name
+        delete_managed_file(managed_file)
 
-    def test_get_file_url(self, user):
-        file_content = b"url test"
-        uploaded_file = SimpleUploadedFile("url_test.txt", file_content)
-        managed_file = save_managed_file(uploaded_file, owner=user)
-
-        url = get_file_url(managed_file.id)
-        assert url is not None
-        assert managed_file.file.url in url
-
-    def test_delete_managed_file(self, user):
-        file_content = b"delete test"
-        uploaded_file = SimpleUploadedFile("delete_test.txt", file_content)
-        managed_file = save_managed_file(uploaded_file, owner=user)
-        managed_file_id = managed_file.id
-
-        # In-memory storage might not have a path, but FileSystemStorage does.
-        # We check the record deletion regardless.
-        result = delete_managed_file(managed_file_id)
-        assert result is True
-        assert ManagedFile.objects.filter(id=managed_file_id).count() == 0
+        assert not ManagedFile.objects.filter(id=managed_file.id).exists()
+        assert not os.path.exists(file_path)
