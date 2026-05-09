@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Customization Request Received</h1>
+    <p>Hi {{ user.username }},</p>
+    <p>We have received your customization request for <strong>{{ request_obj.template.name }}</strong>.</p>
+    <p><strong>Subject:</strong> {{ request_obj.subject }}</p>
+    <p>Our team will review it and get back to you shortly.</p>
+    <p>Best regards,<br>{{ site_name }} Team</p>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Thank you for your purchase!</h1>
+    <p>Hi {{ user.username }},</p>
+    <p>Your purchase of <strong>{{ purchase.template.name }}</strong> ({{ purchase.package.name }}) has been confirmed.</p>
+    <p>Transaction ID: {{ purchase.transaction_id }}</p>
+    <p>Amount Paid: ${{ purchase.amount_paid }}</p>
+    <p>You can access your template in your dashboard.</p>
+    <p>Best regards,<br>{{ site_name }} Team</p>
+</body>
+</html>
