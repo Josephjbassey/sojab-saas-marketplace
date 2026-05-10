@@ -1,0 +1,3 @@
+<span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset {% if lead.status == 'new' %}ring-green-600/20 text-green-700 bg-green-50{% elif lead.status == 'contacted' %}ring-blue-600/20 text-blue-700 bg-blue-50{% else %}ring-gray-600/20 text-gray-600 bg-gray-50{% endif %}">
+    {{ lead.get_status_display }}
+</span>

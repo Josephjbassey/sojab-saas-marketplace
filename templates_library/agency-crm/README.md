@@ -1,38 +1,58 @@
 # Agency CRM SaaS Boilerplate
 
-A professional Agency CRM built with Django, Wagtail, and HTMX.
+A robust, multi-tenant CRM foundation for digital agencies, built with Django 6.x, Wagtail CMS, Tailwind CSS v4, and HTMX.
 
 ## Features
-- **Standalone Django SaaS**: Fully self-contained project structure.
-- **Client Management**: Track leads, contacts, and customer history.
-- **Lead Pipeline**: Kanban-style visual pipeline for tracking opportunities.
-- **Project Tracking**: Manage tasks, deadlines, and deliverables.
-- **Workspace Support**: Multi-tenancy ready for agency teams.
-- **Modern Stack**: Tailwind CSS v4, HTMX, Alpine.js, and Wagtail CMS.
-- **Production Ready**: Optimized for Docker, PostgreSQL, and Redis.
 
-## Getting Started
+- **Lead Management**: Track and search leads through the sales pipeline.
+- **Client Portals**: Manage client profiles, projects, and invoices.
+- **Project Tracking**: Monitor delivery status and project details.
+- **Invoicing**: Simple billing history and payment status tracking.
+- **Multi-tenancy**: Built-in Organization and Membership models for workspace isolation.
+- **CMS Integration**: Wagtail-powered marketing and standard pages.
+- **HTMX Interactions**: Dynamic search and status updates without full page reloads.
+- **Clean UI**: Responsive design using Tailwind CSS v4.
 
-### 1. Initialize
-```bash
-make init
-```
-*Note: This will use the provided docker-compose.example.yml*
+## Quick Start
 
-### 2. Run Migrations
-```bash
-python manage.py migrate
-```
+1. **Setup Environment**:
+   ```bash
+   cp .env.example .env
+   ```
 
-### 3. Seed Data
-```bash
-python seed_crm_data.py
-```
+2. **Initialize Database**:
+   ```bash
+   python manage.py migrate
+   ```
 
-### 4. Start Development
-```bash
-make dev
-```
+3. **Seed Demo Data**:
+   ```bash
+   python seed_crm_data.py
+   ```
+   *Note: This will print a generated admin password.*
 
-## Documentation
-See the `docs/` folder for detailed guides on project structure, customization, and deployment.
+4. **Run Server**:
+   ```bash
+   python manage.py runserver
+   ```
+
+## Project Structure
+
+- `apps/accounts`: Custom user model and authentication.
+- `apps/organizations`: Multi-tenancy logic.
+- `apps/clients`: Client management.
+- `apps/leads`: Sales pipeline tracking.
+- `apps/projects`: Delivery and project management.
+- `apps/invoices`: Billing and invoices.
+- `apps/cms`: Wagtail models and pages.
+- `apps/common`: Shared layouts, components, and notes.
+
+## Development
+
+- **Tailwind CSS**: Uses the v4 browser-based compiler for rapid development.
+- **HTMX**: Used for dynamic list filtering and status updates.
+- **Tests**: Run `pytest tests.py` to verify core functionality.
+
+## Deployment
+
+Refer to [docs/deployment-guide.md](docs/deployment-guide.md) for instructions on deploying to Railway, Render, or Vercel.

@@ -1,0 +1,91 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Dashboard - Agency CRM{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-0">
+    <h1 class="text-2xl font-semibold text-gray-900">Agency Dashboard</h1>
+
+    <!-- Stats -->
+    <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Total Revenue</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">${{ total_revenue }}</dd>
+        </div>
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Active Projects</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ projects_count }}</dd>
+        </div>
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Total Leads</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ leads_count }}</dd>
+        </div>
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Total Clients</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ clients_count }}</dd>
+        </div>
+    </dl>
+
+    <div class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <!-- Recent Leads -->
+        <div class="overflow-hidden rounded-lg bg-white shadow">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-semibold leading-7 text-gray-900">Recent Leads</h2>
+                    <a href="{% url 'leads:list' %}" class="text-sm font-semibold text-primary hover:text-blue-500">View all</a>
+                </div>
+                <ul role="list" class="mt-6 divide-y divide-gray-100">
+                    {% for lead in recent_leads %}
+                    <li class="flex items-center justify-between gap-x-6 py-5">
+                        <div class="min-w-0">
+                            <div class="flex items-start gap-x-3">
+                                <p class="text-sm font-semibold leading-6 text-gray-900">{{ lead.title }}</p>
+                                <p class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset {% if lead.status == 'new' %}ring-green-600/20 text-green-700 bg-green-50{% else %}ring-gray-600/20 text-gray-600 bg-gray-50{% endif %}">
+                                    {{ lead.get_status_display }}
+                                </p>
+                            </div>
+                            <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
+                                <p class="truncate">{{ lead.client.name }}</p>
+                                <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current"><circle cx="1" cy="1" r="1" /></svg>
+                                <p class="whitespace-nowrap">Value: ${{ lead.value }}</p>
+                            </div>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="py-5 text-sm text-gray-500">No leads found.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Recent Projects -->
+        <div class="overflow-hidden rounded-lg bg-white shadow">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-semibold leading-7 text-gray-900">Recent Projects</h2>
+                    <a href="{% url 'projects:list' %}" class="text-sm font-semibold text-primary hover:text-blue-500">View all</a>
+                </div>
+                <ul role="list" class="mt-6 divide-y divide-gray-100">
+                    {% for project in recent_projects %}
+                    <li class="flex items-center justify-between gap-x-6 py-5">
+                        <div class="min-w-0">
+                            <div class="flex items-start gap-x-3">
+                                <p class="text-sm font-semibold leading-6 text-gray-900">{{ project.name }}</p>
+                                <p class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset ring-blue-600/20 text-blue-700 bg-blue-50">
+                                    {{ project.get_status_display }}
+                                </p>
+                            </div>
+                            <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
+                                <p class="truncate">Client: {{ project.client.name }}</p>
+                            </div>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="py-5 text-sm text-gray-500">No projects found.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
