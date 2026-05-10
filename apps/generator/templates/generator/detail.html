@@ -1,0 +1,140 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Project Details - Marketplace{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-heading font-bold text-white">{{ project.project_name }}</h1>
+            <p class="text-slate-400 font-mono text-sm mt-1">STATUS: {{ project.get_status_display|upper }}</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="{% url 'generator:list' %}" class="btn-surface text-sm py-2">&larr; Back to List</a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-8">
+            <section class="card-panel">
+                <div class="px-6 py-5 border-b border-surface-light bg-void/50">
+                    <h2 class="text-lg font-heading font-bold text-white">Project Information</h2>
+                </div>
+                <div class="px-6 py-6 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-xs font-mono text-slate-500 uppercase tracking-widest">Base Template</p>
+                            <p class="text-lg font-heading text-white mt-1">{{ project.template.name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-mono text-slate-500 uppercase tracking-widest">Linked Purchase</p>
+                            <a href="{% url 'purchases:detail' project.purchase.pk %}" class="text-lg font-heading text-orange hover:underline mt-1 block">
+                                {{ project.purchase.package.name }}
+                            </a>
+                        </div>
+                        <div>
+                            <p class="text-xs font-mono text-slate-500 uppercase tracking-widest">Workspace</p>
+                            <p class="text-lg font-heading text-white mt-1">{{ project.organization.name|default:"Personal" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-mono text-slate-500 uppercase tracking-widest">Created On</p>
+                            <p class="text-lg font-heading text-white mt-1">{{ project.created_at|date:"F j, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card-panel">
+                <div class="px-6 py-5 border-b border-surface-light bg-void/50">
+                    <h2 class="text-lg font-heading font-bold text-white">Delivery Assets</h2>
+                </div>
+                <div class="px-6 py-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-void/30 border border-surface-light rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-bold text-white">GitHub Repository</p>
+                                    <p class="text-xs text-slate-500 font-mono">CODE_SOURCE</p>
+                                </div>
+                            </div>
+                            {% if project.github_repo_url %}
+                            <a href="{{ project.github_repo_url }}" class="btn-surface py-1 px-3 text-xs">VIEW_REPO</a>
+                            {% else %}
+                            <span class="text-xs text-slate-500 italic">PENDING_INIT</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-void/30 border border-surface-light rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-bold text-white">Production Instance</p>
+                                    <p class="text-xs text-slate-500 font-mono">LIVE_DEPLOYMENT</p>
+                                </div>
+                            </div>
+                            {% if project.deployment_url %}
+                            <a href="{{ project.deployment_url }}" class="btn-primary py-1 px-3 text-xs">VISIT_SITE</a>
+                            {% else %}
+                            <span class="text-xs text-slate-500 italic">WAITING_FOR_DEPLOY</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="space-y-8">
+            <section class="card-panel">
+                <div class="px-6 py-5 border-b border-surface-light bg-void/50">
+                    <h2 class="text-lg font-heading font-bold text-white">Project Config</h2>
+                </div>
+                <div class="px-6 py-6">
+                    {% if project.configuration %}
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Brand Name</p>
+                            <p class="text-sm text-white font-body">{{ project.configuration.brand_name|default:"Not specified" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Primary Color</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                {% if project.configuration.primary_color %}
+                                <div class="w-4 h-4 rounded-full border border-surface-light" style="background-color: {{ project.configuration.primary_color }}"></div>
+                                <p class="text-sm text-white font-mono">{{ project.configuration.primary_color }}</p>
+                                {% else %}
+                                <p class="text-sm text-slate-500 italic">Default</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Deployment Target</p>
+                            <p class="text-sm text-white font-body">{{ project.configuration.deployment_target|default:"SaaS Platform" }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-slate-500 italic">No custom configuration found.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            {% if project.admin_notes %}
+            <section class="card-panel border-orange/20">
+                <div class="px-6 py-5 border-b border-surface-light bg-orange/5">
+                    <h2 class="text-lg font-heading font-bold text-orange">Delivery Notes</h2>
+                </div>
+                <div class="px-6 py-6">
+                    <p class="text-sm text-slate-300 font-body leading-relaxed">
+                        {{ project.admin_notes }}
+                    </p>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

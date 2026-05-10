@@ -1,58 +1,98 @@
-# Agency CRM SaaS Boilerplate
+# Agency CRM SaaS Template
 
-A robust, multi-tenant CRM foundation for digital agencies, built with Django 6.x, Wagtail CMS, Tailwind CSS v4, and HTMX.
+A professional, multi-tenant CRM foundation designed for digital agencies, freelancers, and service businesses. Built with **Django 6.x**, **Wagtail CMS**, **Tailwind CSS v4**, and **HTMX**.
 
-## Features
+## What this template does
+This template provides a ready-to-use SaaS architecture for managing the lifecycle of agency operations:
+- **Lead Pipeline**: Track potential deals from discovery to closing.
+- **Client Management**: Maintain a central database of clients and their primary contacts.
+- **Project Workspaces**: Manage delivery statuses for active projects.
+- **Invoicing**: Track billing history and payment statuses.
+- **Multi-tenancy**: Built-in isolation for organizations and their members.
+- **Marketing CMS**: Integrated Wagtail CMS for high-performance marketing pages.
 
-- **Lead Management**: Track and search leads through the sales pipeline.
-- **Client Portals**: Manage client profiles, projects, and invoices.
-- **Project Tracking**: Monitor delivery status and project details.
-- **Invoicing**: Simple billing history and payment status tracking.
-- **Multi-tenancy**: Built-in Organization and Membership models for workspace isolation.
-- **CMS Integration**: Wagtail-powered marketing and standard pages.
-- **HTMX Interactions**: Dynamic search and status updates without full page reloads.
-- **Clean UI**: Responsive design using Tailwind CSS v4.
+## Who it is for
+- **Digital Agencies** looking for a customizable internal tool.
+- **SaaS Founders** needing a boilerplate for a multi-tenant B2B application.
+- **Freelancers** managing multiple clients and projects.
 
-## Quick Start
+## Installation & Setup
 
-1. **Setup Environment**:
-   ```bash
-   cp .env.example .env
-   ```
+### 1. Prerequisites
+- Python 3.12+
+- Docker & Docker Compose (for PostgreSQL/Redis)
 
-2. **Initialize Database**:
-   ```bash
-   python manage.py migrate
-   ```
+### 2. Environment Setup
+Copy the example environment file and install dependencies:
+```bash
+cp .env.example .env
+pip install -r requirements.txt
+```
 
-3. **Seed Demo Data**:
-   ```bash
-   python seed_crm_data.py
-   ```
-   *Note: This will print a generated admin password.*
+### 3. Database & Services
+Start the required services using Docker:
+```bash
+docker compose -f docker-compose.example.yml up -d
+```
 
-4. **Run Server**:
-   ```bash
-   python manage.py runserver
-   ```
+Run migrations to set up the database schema:
+```bash
+python manage.py migrate
+# OR using Makefile:
+make migrate
+```
+
+### 4. Seed Demo Data
+Populate the database with demo organizations, clients, and leads:
+```bash
+python seed_crm_data.py
+# OR using Makefile:
+make seed
+```
+*Note: This command will output a randomly generated admin password.*
+
+### 5. Create a Superuser
+If you prefer to create your own admin account:
+```bash
+python manage.py createsuperuser
+# OR using Makefile:
+make superuser
+```
+
+## Running the Application
+Start the development server:
+```bash
+python manage.py runserver
+# OR using Makefile:
+make dev
+```
+Access the dashboard at `http://localhost:8000/dashboard/` and the admin panel at `http://localhost:8000/django-admin/`.
+
+## Testing
+Verify the application integrity with pytest:
+```bash
+pytest tests.py
+# OR using Makefile:
+make test
+```
+
+## Makefile Commands
+A Makefile is provided for common development tasks:
+- `make init`: Full setup (env, dependencies, containers).
+- `make dev`: Start the local server.
+- `make test`: Run the test suite.
+- `make migrate`: Apply database changes.
+- `make seed`: Load demo CRM data.
+- `make check`: Run Django system checks.
 
 ## Project Structure
-
-- `apps/accounts`: Custom user model and authentication.
-- `apps/organizations`: Multi-tenancy logic.
-- `apps/clients`: Client management.
+- `apps/accounts`: User authentication and profiles.
+- `apps/organizations`: Workspace isolation and membership.
 - `apps/leads`: Sales pipeline tracking.
-- `apps/projects`: Delivery and project management.
-- `apps/invoices`: Billing and invoices.
-- `apps/cms`: Wagtail models and pages.
-- `apps/common`: Shared layouts, components, and notes.
+- `apps/clients`: Client management.
+- `apps/projects`: Project delivery tracking.
+- `apps/invoices`: Billing and financial records.
+- `apps/cms`: Wagtail CMS integration.
 
-## Development
-
-- **Tailwind CSS**: Uses the v4 browser-based compiler for rapid development.
-- **HTMX**: Used for dynamic list filtering and status updates.
-- **Tests**: Run `pytest tests.py` to verify core functionality.
-
-## Deployment
-
-Refer to [docs/deployment-guide.md](docs/deployment-guide.md) for instructions on deploying to Railway, Render, or Vercel.
+## License
+Commercial - See [template.json](template.json) for details.

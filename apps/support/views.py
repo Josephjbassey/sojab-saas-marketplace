@@ -87,3 +87,17 @@ def customization_request_create(request, template_slug):
         'form': form,
         'template': template
     })
+
+@login_required
+def request_list(request):
+    requests = CustomizationRequest.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'support/request_list.html', {
+        'requests': requests
+    })
+
+@login_required
+def request_detail(request, pk):
+    custom_request = get_object_or_404(CustomizationRequest, pk=pk, user=request.user)
+    return render(request, 'support/request_detail.html', {
+        'request_obj': custom_request
+    })

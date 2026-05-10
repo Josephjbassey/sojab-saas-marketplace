@@ -1,0 +1,148 @@
+{% load static wagtailcore_tags wagtailuserbar %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Code By SoJab | Premium Developer Templates{% endblock %}</title>
+
+    <!-- Professional Typography -->
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS v4 CDN -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+    <style type="text/tailwindcss">
+        @theme {
+            --color-void: #010E22;
+            --color-surface: #021C3B;
+            --color-surface-hover: #03294E;
+            --color-surface-light: #233E5C;
+            --color-orange: #EB721B;
+            --color-tan: #C89664;
+            --color-brand-blue: #256B97;
+
+            --font-heading: "Geist Sans", sans-serif;
+            --font-body: "Satoshi", sans-serif;
+            --font-mono: "JetBrains Mono", monospace;
+        }
+
+        /* Base Component Utilities */
+        body {
+            background-color: var(--color-void);
+            color: #E2E8F0;
+            font-family: var(--font-body);
+            @apply antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            @apply tracking-tight;
+        }
+
+        .btn-primary {
+            @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-bold rounded-lg text-void bg-orange hover:bg-[#F28B3E] active:translate-y-[1px] transition-all duration-200;
+        }
+
+        .btn-surface {
+            @apply inline-flex items-center justify-center px-6 py-3 border border-surface-light text-base font-bold rounded-lg text-slate-200 bg-surface hover:bg-surface-hover hover:border-tan active:translate-y-[1px] transition-all duration-200;
+        }
+
+        .card-panel {
+            @apply bg-surface rounded-2xl border border-surface-light overflow-hidden transition-all duration-300 hover:border-brand-blue;
+        }
+
+        .font-mono {
+            font-family: var(--font-mono);
+        }
+
+        /* Motion primitives */
+        .reveal-cascade {
+            animation: reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col selection:bg-orange selection:text-void" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    {% wagtailuserbar %}
+
+    <nav class="bg-void border-b border-surface">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex">
+                    <a href="/" class="flex items-center space-x-2 group">
+                        <div class="w-8 h-8 rounded bg-orange flex items-center justify-center text-void font-heading font-bold text-lg transition-transform group-hover:scale-105">C</div>
+                        <span class="text-xl font-heading font-bold tracking-tight text-white transition-colors">CODE BY <span class="text-orange">SOJAB</span></span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-8">
+                    <a href="{% url 'templates_catalog:template_list' %}" class="text-sm font-bold text-slate-400 hover:text-white transition-colors tracking-widest uppercase">Catalog</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'notifications:list' %}" class="relative text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            {% if unread_count %}
+                            <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange text-[10px] font-bold text-void">
+                                {{ unread_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'marketplace:dashboard' %}" class="text-sm font-bold text-slate-400 hover:text-white transition-colors tracking-widest uppercase">Dashboard</a>
+                        <form method="post" action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-sm font-bold text-slate-400 hover:text-orange transition-colors tracking-widest uppercase">Logout</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="text-sm font-bold text-slate-400 hover:text-white transition-colors tracking-widest uppercase">Log in</a>
+                        <a href="{% url 'accounts:register' %}" class="btn-primary py-2 px-4 text-sm">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg reveal-cascade {% if message.tags == 'success' %}bg-green-500/10 text-green-400 border border-green-500/20{% else %}bg-red-500/10 text-red-400 border border-red-500/20{% endif %} mb-2">
+            <span class="font-mono text-xs uppercase tracking-widest mr-2">[{{ message.tags }}]</span> {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-void border-t border-surface py-16 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-start">
+            <div class="mb-8 md:mb-0">
+                <span class="text-xl font-heading font-bold tracking-tight text-white uppercase">Code By <span class="text-orange">SoJab</span></span>
+                <p class="text-sm text-slate-500 mt-4 font-body max-w-xs leading-relaxed">Precision-engineered Django foundations for the next generation of SaaS architects.</p>
+            </div>
+            <div class="text-slate-500 text-xs font-mono flex flex-col space-y-4 items-end">
+                <div class="flex space-x-8">
+                    <a href="#" class="hover:text-tan transition-colors uppercase tracking-widest">Terms_of_Service</a>
+                    <a href="#" class="hover:text-tan transition-colors uppercase tracking-widest">Privacy_Policy</a>
+                </div>
+                <span class="uppercase tracking-widest">&copy; {% now "Y" %} Code By SoJab // ALL_RIGHTS_RESERVED</span>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
