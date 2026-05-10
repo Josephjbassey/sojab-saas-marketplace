@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from .models import Organization, Membership
 from .permissions import can_view_organization, can_manage_members
 
@@ -29,6 +30,7 @@ def organization_detail(request, slug):
     })
 
 @login_required
+@require_POST
 def switch_organization(request, slug):
     organization = get_object_or_404(Organization, slug=slug, is_active=True)
 
