@@ -2,6 +2,7 @@ import logging
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import CustomizationRequestForm
+from .models import CustomizationRequest
 from apps.templates_catalog.models import SaaSTemplate
 from apps.notifications.services import notify_user
 from apps.audit.services import log_action
