@@ -4,7 +4,7 @@
 help:
 	@echo "Available commands:"
 	@echo "  init      - Setup environment, install dependencies, and start containers"
-	@echo "  dev       - Run the development server (via docker-compose)"
+	@echo "  dev       - Run the Django development server"
 	@echo "  check     - Run Django system checks"
 	@echo "  migrate   - Apply database migrations"
 	@echo "  test      - Run tests using pytest"
@@ -28,7 +28,7 @@ migrate:
 	python manage.py migrate
 
 test:
-	pytest tests.py
+	pytest
 
 superuser:
 	python manage.py createsuperuser

@@ -30,9 +30,10 @@
                                     {{ project.project_name }}
                                 </h3>
                                 <span class="px-2 py-0.5 text-[10px] uppercase tracking-widest font-mono font-bold rounded border
-                                    {% if project.status == 'delivered' %}bg-emerald-500/10 text-emerald-400 border-emerald-500/20
-                                    {% elif project.status == 'failed' %}bg-red-500/10 text-red-400 border-red-500/20
-                                    {% else %}bg-yellow-500/10 text-yellow-400 border-yellow-500/20{% endif %}">
+                                    {% if project.status == 'delivered' or project.status == 'deployed' or project.status == 'success' %}bg-emerald-500/10 text-emerald-400 border-emerald-500/20
+                                    {% elif project.status == 'failed' or project.status == 'error' %}bg-red-500/10 text-red-400 border-red-500/20
+                                    {% elif project.status == 'pending' or project.status == 'building' %}bg-yellow-500/10 text-yellow-400 border-yellow-500/20
+                                    {% else %}bg-slate-500/10 text-slate-300 border-slate-500/20{% endif %}">
                                     {{ project.status }}
                                 </span>
                             </div>
@@ -98,7 +99,7 @@
                                     {% else %}bg-red-500/10 text-red-400 border-red-500/20{% endif %}">
                                     {{ purchase.status }}
                                 </span>
-                                <a href="{% url 'purchases:detail' purchase.pk %}" class="text-slate-500 hover:text-white transition-colors">
+                                <a href="{% url 'purchases:detail' purchase.pk %}" class="text-slate-500 hover:text-white transition-colors" aria-label="View purchase details">
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                     </svg>

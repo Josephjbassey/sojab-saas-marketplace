@@ -8,13 +8,21 @@ from apps.notifications.services import get_unread_count
 
 @login_required
 def dashboard_home(request):
-    recent_purchases = TemplatePurchase.objects.filter(user=request.user).order_by('-created_at')[:5]
+    recent_purchases = TemplatePurchase.objects.filter(user=request.user).select_related(
+        'template', 'package', 'organization'
+    ).order_by('-created_at')[:5]
 
     # Combined view of GeneratedProject and ClientProject for backward compatibility with existing tests
-    active_generated = GeneratedProject.objects.filter(user=request.user).order_by('-created_at')[:5]
-    active_deployments = ClientProject.objects.filter(user=request.user).order_by('-created_at')[:5]
+    active_generated = GeneratedProject.objects.filter(user=request.user).select_related(
+        'template', 'organization', 'purchase'
+    ).order_by('-created_at')[:5]
+    active_deployments = ClientProject.objects.filter(user=request.user).select_related(
+        'template', 'organization', 'purchase'
+    ).order_by('-created_at')[:5]
 
-    recent_requests = CustomizationRequest.objects.filter(user=request.user).order_by('-created_at')[:5]
+    recent_requests = CustomizationRequest.objects.filter(user=request.user).select_related(
+        'template', 'organization'
+    ).order_by('-created_at')[:5]
     unread_count = get_unread_count(request.user)
     
     return render(request, 'marketplace/dashboard/home.html', {

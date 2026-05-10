@@ -7,13 +7,15 @@ from apps.templates_catalog.models import SaaSTemplate, TemplateCategory, Templa
 from apps.generator.models import GeneratedProject
 from apps.notifications.models import Notification
 
+TEST_PASSWORD = 'password'
+
 @pytest.fixture
 def user(db):
-    return User.objects.create_user(username='testuser', email='test@example.com', password='password')
+    return User.objects.create_user(username='testuser', email='test@example.com', password=TEST_PASSWORD)
 
 @pytest.fixture
 def other_user(db):
-    return User.objects.create_user(username='otheruser', email='other@example.com', password='password')
+    return User.objects.create_user(username='otheruser', email='other@example.com', password=TEST_PASSWORD)
 
 @pytest.fixture
 def organization(db):
@@ -36,7 +38,7 @@ class TestDashboardUI:
         assert 'login' in response.url
 
     def test_dashboard_renders_for_logged_in_user(self, client, user):
-        client.login(username='testuser', password='password')
+        client.login(username='testuser', password=TEST_PASSWORD)
         response = client.get(reverse('marketplace:dashboard'))
         assert response.status_code == 200
         assert b'System Dashboard' in response.content
@@ -46,7 +48,7 @@ class TestDashboardUI:
         Membership.objects.create(user=user, organization=organization, role='member')
 
         # Log in as other user
-        client.login(username='otheruser', password='password')
+        client.login(username='otheruser', password=TEST_PASSWORD)
 
         # Try to view organization list (should be empty for other_user)
         response = client.get(reverse('organizations:list'))
@@ -59,7 +61,7 @@ class TestDashboardUI:
 
     def test_notification_list_renders(self, client, user):
         Notification.objects.create(recipient=user, title='Test Notification', message='Hello')
-        client.login(username='testuser', password='password')
+        client.login(username='testuser', password=TEST_PASSWORD)
         response = client.get(reverse('notifications:list'))
         assert response.status_code == 200
         assert b'Test Notification' in response.content
@@ -68,11 +70,11 @@ class TestDashboardUI:
         template = package.template
         purchase = TemplatePurchase.objects.create(user=user, template=template, package=package, amount_paid=49.00, status='paid')
 
-        client.login(username='otheruser', password='password')
+        client.login(username='otheruser', password=TEST_PASSWORD)
         response = client.get(reverse('purchases:detail', args=[purchase.pk]))
         assert response.status_code == 404
 
-        client.login(username='testuser', password='password')
+        client.login(username='testuser', password=TEST_PASSWORD)
         response = client.get(reverse('purchases:detail', args=[purchase.pk]))
         assert response.status_code == 200
         assert template.name.encode() in response.content
@@ -82,7 +84,7 @@ class TestDashboardUI:
         purchase = TemplatePurchase.objects.create(user=user, template=template, package=package, amount_paid=49.00, status='paid')
         project = GeneratedProject.objects.create(user=user, purchase=purchase, template=template, project_name='My Project')
 
-        client.login(username='testuser', password='password')
+        client.login(username='testuser', password=TEST_PASSWORD)
         response = client.get(reverse('generator:detail', args=[project.pk]))
         assert response.status_code == 200
         assert b'My Project' in response.content

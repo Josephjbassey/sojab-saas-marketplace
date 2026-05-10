@@ -91,7 +91,7 @@ def customization_request_create(request, template_slug):
 
 @login_required
 def request_list(request):
-    requests = CustomizationRequest.objects.filter(user=request.user).order_by('-created_at')
+    requests = CustomizationRequest.objects.filter(user=request.user).select_related('template').order_by('-created_at')
     return render(request, 'support/request_list.html', {
         'requests': requests
     })

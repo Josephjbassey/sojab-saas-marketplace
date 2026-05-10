@@ -28,7 +28,10 @@
             </div>
             <div class="px-6 py-4 bg-void/50 border-t border-surface-light flex justify-between items-center">
                 <a href="{% url 'organizations:detail' membership.organization.slug %}" class="text-xs font-mono text-slate-400 hover:text-white transition-colors">VIEW_DETAILS</a>
-                <a href="{% url 'organizations:switch' membership.organization.slug %}" class="btn-primary py-1 px-3 text-xs">ACTIVATE</a>
+                <form method="post" action="{% url 'organizations:switch' membership.organization.slug %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-primary py-1 px-3 text-xs">ACTIVATE</button>
+                </form>
             </div>
         </div>
         {% empty %}

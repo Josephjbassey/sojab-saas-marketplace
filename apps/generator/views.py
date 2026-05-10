@@ -4,7 +4,9 @@ from .models import GeneratedProject
 
 @login_required
 def project_list(request):
-    projects = GeneratedProject.objects.filter(user=request.user).order_by('-created_at')
+    projects = GeneratedProject.objects.filter(user=request.user).select_related(
+        'template', 'organization', 'purchase'
+    ).order_by('-created_at')
     return render(request, 'generator/list.html', {
         'projects': projects
     })
