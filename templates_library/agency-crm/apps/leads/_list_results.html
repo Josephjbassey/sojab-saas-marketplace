@@ -1,0 +1,13 @@
+{% for lead in leads %}
+<tr>
+    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">{{ lead.title }}</td>
+    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ lead.client.name }}</td>
+    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${{ lead.value }}</td>
+    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500" id="lead-status-{{ lead.pk }}">
+        {% include 'leads/_status_badge.html' %}
+    </td>
+    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+        <a href="{% url 'leads:detail' lead.pk %}" class="text-primary hover:text-blue-900">View</a>
+    </td>
+</tr>
+{% endfor %}

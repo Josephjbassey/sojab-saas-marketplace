@@ -1,0 +1,65 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Client: {{ client.name }} - Agency CRM{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8">
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="min-w-0 flex-1">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{{ client.name }}</h2>
+            <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
+                <div class="mt-2 flex items-center text-sm text-gray-500">
+                    {{ client.email }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <!-- Projects -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-base font-semibold leading-6 text-gray-900">Active Projects</h3>
+            </div>
+            <ul role="list" class="divide-y divide-gray-200">
+                {% for project in client.projects.all %}
+                <li class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-primary truncate">{{ project.name }}</p>
+                        <div class="ml-2 flex flex-shrink-0">
+                            <p class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">{{ project.get_status_display }}</p>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="px-4 py-4 sm:px-6 text-sm text-gray-500 italic">No projects found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Invoices -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-base font-semibold leading-6 text-gray-900">Recent Invoices</h3>
+            </div>
+            <ul role="list" class="divide-y divide-gray-200">
+                {% for invoice in client.invoices.all %}
+                <li class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-900">{{ invoice.number }}</p>
+                        <div class="ml-2 flex flex-shrink-0">
+                            <p class="text-sm text-gray-500">${{ invoice.amount }}</p>
+                            <p class="ml-2 inline-flex rounded-full {% if invoice.status == 'paid' %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %} px-2 text-xs font-semibold leading-5">
+                                {{ invoice.get_status_display }}
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="px-4 py-4 sm:px-6 text-sm text-gray-500 italic">No invoices found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
