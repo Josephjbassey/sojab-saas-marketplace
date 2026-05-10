@@ -149,3 +149,10 @@ def purchase_success(request, purchase_id):
     return render(request, 'purchases/success.html', {
         'purchase': purchase,
     })
+
+@login_required
+def purchase_detail(request, pk):
+    purchase = get_object_or_404(TemplatePurchase, pk=pk, user=request.user)
+    return render(request, 'purchases/detail.html', {
+        'purchase': purchase
+    })

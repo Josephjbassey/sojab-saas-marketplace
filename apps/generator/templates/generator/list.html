@@ -1,0 +1,45 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}My Deployments - Marketplace{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-heading font-bold text-white">Generated Instances</h1>
+            <p class="text-slate-400 font-mono text-sm mt-1">ACTIVE_PROCESSES: {{ projects.count }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for project in projects %}
+        <div class="card-panel group">
+            <div class="px-6 py-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="px-2 py-0.5 text-[10px] uppercase tracking-widest font-mono font-bold rounded border
+                        {% if project.status == 'delivered' %}bg-emerald-500/10 text-emerald-400 border-emerald-500/20
+                        {% elif project.status == 'failed' %}bg-red-500/10 text-red-400 border-red-500/20
+                        {% else %}bg-yellow-500/10 text-yellow-400 border-yellow-500/20{% endif %}">
+                        {{ project.status }}
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-500">{{ project.created_at|date:"Y-m-d" }}</span>
+                </div>
+                <h3 class="text-xl font-heading font-bold text-white group-hover:text-orange transition-colors truncate">{{ project.project_name }}</h3>
+                <p class="text-xs font-mono text-slate-500 mt-1 uppercase tracking-widest">{{ project.template.name }}</p>
+            </div>
+            <div class="px-6 py-4 bg-void/50 border-t border-surface-light flex justify-between items-center">
+                <a href="{% url 'generator:detail' project.pk %}" class="text-xs font-mono text-slate-400 hover:text-white transition-colors">ACCESS_CONSOLE</a>
+                {% if project.deployment_url %}
+                <a href="{{ project.deployment_url }}" class="text-xs font-mono text-orange hover:text-orange-400">LIVE_LINK</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full card-panel p-12 text-center border-dashed">
+            <p class="text-slate-500 font-body">No generated project clusters found.</p>
+            <a href="{% url 'templates_catalog:template_list' %}" class="btn-primary mt-6">Provision New Cluster</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "layouts/base.html" %}
 
 {% block content %}
 <div class="bg-slate-50 min-h-screen">
@@ -65,10 +65,10 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-bold">
-                                            ${{ purchase.package.price }}
+                                            ${{ purchase.amount_paid }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Download</a>
+                                            <a href="{% url 'purchases:detail' purchase.pk %}" class="text-indigo-600 hover:text-indigo-900">View Detail</a>
                                         </td>
                                     </tr>
                                 {% empty %}

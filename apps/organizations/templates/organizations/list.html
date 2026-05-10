@@ -1,0 +1,41 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}My Organizations - Marketplace{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-heading font-bold text-white">Workspaces</h1>
+            <p class="text-slate-400 font-mono text-sm mt-1">TOTAL_RESOURCES: {{ memberships.count }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for membership in memberships %}
+        <div class="card-panel group">
+            <div class="px-6 py-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-lg bg-void border border-surface-light flex items-center justify-center text-orange font-bold font-heading text-xl group-hover:border-orange transition-colors">
+                        {{ membership.organization.name|slice:":1"|upper }}
+                    </div>
+                    <span class="px-2 py-0.5 text-[10px] uppercase tracking-widest font-mono font-bold rounded border bg-blue-500/10 text-blue-400 border-blue-500/20">
+                        {{ membership.role }}
+                    </span>
+                </div>
+                <h3 class="text-xl font-heading font-bold text-white group-hover:text-orange transition-colors">{{ membership.organization.name }}</h3>
+                <p class="text-xs font-mono text-slate-500 mt-1 uppercase tracking-widest">{{ membership.organization.slug }}</p>
+            </div>
+            <div class="px-6 py-4 bg-void/50 border-t border-surface-light flex justify-between items-center">
+                <a href="{% url 'organizations:detail' membership.organization.slug %}" class="text-xs font-mono text-slate-400 hover:text-white transition-colors">VIEW_DETAILS</a>
+                <a href="{% url 'organizations:switch' membership.organization.slug %}" class="btn-primary py-1 px-3 text-xs">ACTIVATE</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full card-panel p-12 text-center border-dashed">
+            <p class="text-slate-500 font-body">No associated workspaces found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

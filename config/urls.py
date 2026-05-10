@@ -19,6 +19,9 @@ urlpatterns = [
     path('health/', include('apps.health.urls', namespace='health')),
     path('auth/', include('apps.accounts.urls', namespace='accounts')),
     path('', include('apps.marketplace.urls', namespace='marketplace')),
+    path('organizations/', include('apps.organizations.urls', namespace='organizations')),
+    path('notifications/', include('apps.notifications.urls', namespace='notifications')),
+    path('generator/', include('apps.generator.urls', namespace='generator')),
     path('', include(wagtail_urls)),
 ]
 

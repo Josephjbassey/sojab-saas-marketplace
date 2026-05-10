@@ -1,3 +1,2 @@
 from django.contrib import admin
-
-# Register your models here.
+# Keep empty or add truly common things here
